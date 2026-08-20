@@ -437,3 +437,58 @@ export async function saveElectionSettings(settings) {
 
   return updated;
 }
+
+// -------------------------------------------------------------
+// 8. BACKGROUND SEKOLAH DI DATABASE SUPABASE
+// -------------------------------------------------------------
+export async function getSchoolBackground() {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('election_settings')
+        .select('value')
+        .eq('key', 'school_background_data')
+        .single();
+      if (!error && data && data.value) {
+        try {
+          localStorage.setItem('custom_bg_school', data.value);
+        } catch (e) {}
+        return data.value;
+      }
+    } catch (e) {
+      console.warn('Could not fetch background from Supabase:', e);
+    }
+  }
+
+  return localStorage.getItem('custom_bg_school') || '/bg-school.png';
+}
+
+export async function saveSchoolBackground(dataUrlOrUrl) {
+  try {
+    localStorage.setItem('custom_bg_school', dataUrlOrUrl);
+  } catch (e) {}
+
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    const { error } = await supabase
+      .from('election_settings')
+      .upsert({ key: 'school_background_data', value: dataUrlOrUrl }, { onConflict: 'key' });
+    if (error) throw error;
+  }
+}
+
+export async function resetSchoolBackground() {
+  try {
+    localStorage.removeItem('custom_bg_school');
+  } catch (e) {}
+
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    await supabase
+      .from('election_settings')
+      .delete()
+      .eq('key', 'school_background_data');
+  }
+}
+

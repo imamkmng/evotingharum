@@ -16,7 +16,10 @@ import {
   adminDeleteCandidate,
   adminResetAllVotes,
   fetchElectionSettings,
-  saveElectionSettings
+  saveElectionSettings,
+  getSchoolBackground,
+  saveSchoolBackground,
+  resetSchoolBackground
 } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -897,21 +900,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgSchoolPreview = document.getElementById('bg-school-preview-img');
     const btnResetSchoolBg = document.getElementById('btn-reset-school-bg');
 
-    const customBg = localStorage.getItem('custom_bg_school');
-    if (customBg && bgSchoolPreview) {
-      bgSchoolPreview.src = customBg;
-    }
+    getSchoolBackground().then(bg => {
+      if (bg && bgSchoolPreview) {
+        bgSchoolPreview.src = bg;
+      }
+    });
 
     if (bgSchoolInput) {
-      bgSchoolInput.addEventListener('change', (e) => {
+      bgSchoolInput.addEventListener('change', async (e) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = (loadEvt) => {
+          reader.onload = async (loadEvt) => {
             const dataUrl = loadEvt.target.result;
-            localStorage.setItem('custom_bg_school', dataUrl);
             if (bgSchoolPreview) bgSchoolPreview.src = dataUrl;
-            alert('Gambar asli background sekolah berhasil disimpan dan langsung diterapkan ke halaman Login & Real Count!');
+            try {
+              await saveSchoolBackground(dataUrl);
+              alert('Gambar background sekolah berhasil disimpan ke Database Supabase dan otomatis tersinkron ke semua perangkat!');
+            } catch (err) {
+              alert('Background tersimpan di browser: ' + err.message);
+            }
           };
           reader.readAsDataURL(file);
         }
@@ -919,9 +927,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnResetSchoolBg) {
-      btnResetSchoolBg.addEventListener('click', () => {
-        if (confirm('Kembalikan background ke gambar bawaan?')) {
-          localStorage.removeItem('custom_bg_school');
+      btnResetSchoolBg.addEventListener('click', async () => {
+        if (confirm('Kembalikan background ke gambar bawaan di database?')) {
+          await resetSchoolBackground();
           if (bgSchoolPreview) bgSchoolPreview.src = '/bg-school.png';
           alert('Background dikembalikan ke default.');
         }

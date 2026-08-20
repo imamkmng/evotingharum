@@ -1,14 +1,13 @@
-import { checkVoter } from './supabase.js';
+import { checkVoter, getSchoolBackground } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Sync custom school background image if set
-  try {
-    const customBg = localStorage.getItem('custom_bg_school');
+  // Sync school background image from Supabase / cache
+  getSchoolBackground().then(bg => {
     const bgImgEl = document.getElementById('school-bg-image');
-    if (customBg && bgImgEl) {
-      bgImgEl.src = customBg;
+    if (bg && bgImgEl) {
+      bgImgEl.src = bg;
     }
-  } catch (e) {}
+  });
 
   // Clear previous voter session on login page load
   try {

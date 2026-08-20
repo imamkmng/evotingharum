@@ -1,14 +1,13 @@
-import { fetchCandidates, submitVotes, fetchElectionSettings } from './supabase.js';
+import { fetchCandidates, submitVotes, fetchElectionSettings, getSchoolBackground } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Sync custom school background image if set
-  try {
-    const customBg = localStorage.getItem('custom_bg_school');
+  // Sync school background image from Supabase / cache
+  getSchoolBackground().then(bg => {
     const bgImgEl = document.getElementById('school-bg-image');
-    if (customBg && bgImgEl) {
-      bgImgEl.src = customBg;
+    if (bg && bgImgEl) {
+      bgImgEl.src = bg;
     }
-  } catch (e) {}
+  });
 
   if (window.lucide) {
     window.lucide.createIcons();

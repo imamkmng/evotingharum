@@ -1,14 +1,14 @@
 import confetti from 'canvas-confetti';
+import { getSchoolBackground } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Sync custom school background image if set
-  try {
-    const customBg = localStorage.getItem('custom_bg_school');
+  // Sync school background image from Supabase / cache
+  getSchoolBackground().then(bg => {
     const bgImgEl = document.getElementById('school-bg-image');
-    if (customBg && bgImgEl) {
-      bgImgEl.src = customBg;
+    if (bg && bgImgEl) {
+      bgImgEl.src = bg;
     }
-  } catch (e) {}
+  });
 
   if (window.lucide) {
     window.lucide.createIcons();
