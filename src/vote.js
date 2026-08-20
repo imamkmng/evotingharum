@@ -69,19 +69,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3. Fetch Settings and Candidates
   try {
     const [settingsData, candidatesData] = await Promise.all([
-      fetchElectionSettings(),
-      fetchCandidates()
+      fetchElectionSettings().catch(e => { console.warn(e); return null; }),
+      fetchCandidates().catch(e => { console.warn(e); return []; })
     ]);
 
-    if (settingsData && settingsData.active_categories) {
+    if (settingsData && settingsData.active_categories && settingsData.active_categories.length > 0) {
       activeCategories = settingsData.active_categories;
+    } else {
+      activeCategories = ['osis', 'ambalan_putra', 'ambalan_putri'];
     }
 
-    allCandidates = candidatesData;
+    allCandidates = (candidatesData && candidatesData.length > 0) ? candidatesData : [];
     renderAllCategories();
   } catch (err) {
     console.error('Failed to fetch data:', err);
-    alert('Gagal memuat daftar kandidat atau pengaturan. Silakan muat ulang halaman.');
+    renderAllCategories();
   }
 
   function renderAllCategories() {

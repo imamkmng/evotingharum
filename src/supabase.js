@@ -269,7 +269,15 @@ export async function fetchCandidates() {
   }
 
   // Mock fallback
-  return JSON.parse(localStorage.getItem(MOCK_STORAGE_KEY_CANDIDATES) || '[]');
+  try {
+    const local = localStorage.getItem(MOCK_STORAGE_KEY_CANDIDATES);
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (parsed && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+
+  return INITIAL_MOCK_CANDIDATES;
 }
 
 // Submit Votes
