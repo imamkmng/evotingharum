@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilik Suara E-Voting | Surat Suara Digital</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen pb-36 relative selection:bg-blue-800 selection:text-amber-300 font-sans">
+
+  <!-- Full-Size Background School Architecture & Ambience -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- Full-Width Building Graphic Layer -->
+    <div class="absolute inset-x-0 top-0 flex justify-center">
+      <img 
+        id="school-bg-image"
+        src="/bg-school.png" 
+        alt="Kampus Harum" 
+        class="w-full max-w-none h-[420px] sm:h-[500px] md:h-[580px] lg:h-[640px] object-cover sm:object-cover object-top opacity-20 sm:opacity-25 filter drop-shadow-sm select-none"
+      />
+    </div>
+    
+    <!-- Professional Layered Gradients -->
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-50/10 via-slate-50/70 to-[#F8FAFC]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgba(248,250,252,0.5)_50%,#F8FAFC_95%)]"></div>
+
+    <!-- Soft Glow Ambient Orbs -->
+    <div class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-100/35 rounded-full blur-[140px]"></div>
+    <div class="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-amber-100/25 rounded-full blur-[140px]"></div>
+  </div>
+
+  <!-- Header & Voter Info Bar -->
+  <header class="sticky top-0 z-30 w-full border-b border-slate-200/90 bg-white/90 backdrop-blur-lg shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-blue-800 flex items-center justify-center shadow-md shadow-blue-800/20">
+          <i data-lucide="vote" class="w-5 h-5 text-amber-400"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight font-heading">Surat Suara Digital</h1>
+          <p class="text-[11px] text-slate-500">Pilih 1 kandidat untuk setiap kategori pemilihan aktif</p>
+        </div>
+      </div>
+
+      <!-- Voter Identity Details & Actions -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="flex items-center space-x-2 sm:space-x-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
+          <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-blue-800 flex-shrink-0">
+            <i id="voter-icon" data-lucide="user" class="w-4 h-4"></i>
+          </div>
+          <div class="text-left">
+            <div class="flex items-center space-x-1.5">
+              <span id="voter-name" class="text-xs sm:text-sm font-bold text-slate-900 font-heading truncate max-w-[120px] sm:max-w-[180px]">Memuat...</span>
+              <span id="voter-role-badge" class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-200 font-heading">SISWA</span>
+            </div>
+            <p id="voter-id" class="text-[11px] text-slate-500 font-mono">NISN: -</p>
+          </div>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button id="btn-fullscreen-toggle" type="button" class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-all text-xs font-bold flex items-center space-x-1.5 cursor-pointer shadow-xs bg-white" title="Mode Layar Penuh">
+          <i data-lucide="maximize" class="w-4 h-4 text-blue-800"></i>
+          <span class="hidden md:inline">Layar Penuh</span>
+        </button>
+
+        <button id="btn-cancel-vote" class="p-2 rounded-xl text-slate-500 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all text-xs font-bold flex items-center space-x-1 cursor-pointer" title="Batal / Keluar">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Keluar</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Ballots Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- Section 1: Ketua OSIS -->
+    <section id="section-osis" class="scroll-mt-24">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 mb-6 gap-2">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-lg bg-blue-800 text-white flex items-center justify-center font-bold text-sm font-heading shadow-xs">1</span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center space-x-2 font-heading">
+              <span>Pemilihan Ketua & Wakil Ketua OSIS</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">Wajib Pilih 1</span>
+            </h2>
+            <p class="text-xs text-slate-500">Tentukan pemimpin aspiratif untuk kepengurusan OSIS periode 2026/2027</p>
+          </div>
+        </div>
+        <div id="status-badge-osis" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 self-start sm:self-auto flex items-center space-x-1.5 font-heading">
+          <i data-lucide="circle-dashed" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Belum Memilih</span>
+        </div>
+      </div>
+
+      <div id="grid-osis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Cards -->
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+      </div>
+    </section>
+
+    <!-- Section 2: Pradana Putra (Ambalan Putra) -->
+    <section id="section-ambalan-pa" class="scroll-mt-24">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 mb-6 gap-2">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-sm font-heading shadow-xs">2</span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center space-x-2 font-heading">
+              <span>Pemilihan Pradana / Ketua Ambalan Putra</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Wajib Pilih 1</span>
+            </h2>
+            <p class="text-xs text-slate-500">Pilih pemimpin Pramuka Penegak Putra Gugus Depan</p>
+          </div>
+        </div>
+        <div id="status-badge-ambalan-pa" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 self-start sm:self-auto flex items-center space-x-1.5 font-heading">
+          <i data-lucide="circle-dashed" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Belum Memilih</span>
+        </div>
+      </div>
+
+      <div id="grid-ambalan-pa" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Cards -->
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+      </div>
+    </section>
+
+    <!-- Section 3: Pradana Putri (Ambalan Putri) -->
+    <section id="section-ambalan-pi" class="scroll-mt-24">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 mb-6 gap-2">
+        <div class="flex items-center space-x-3">
+          <span class="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-sm font-heading shadow-xs">3</span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center space-x-2 font-heading">
+              <span>Pemilihan Pradana / Ketua Ambalan Putri</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200">Wajib Pilih 1</span>
+            </h2>
+            <p class="text-xs text-slate-500">Pilih pemimpin Pramuka Penegak Putri Gugus Depan</p>
+          </div>
+        </div>
+        <div id="status-badge-ambalan-pi" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 self-start sm:self-auto flex items-center space-x-1.5 font-heading">
+          <i data-lucide="circle-dashed" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>Belum Memilih</span>
+        </div>
+      </div>
+
+      <div id="grid-ambalan-pi" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Cards -->
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+        <div class="animate-pulse bg-white rounded-2xl h-80 border border-slate-200"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Bottom Summary & Submit Bar (Modern Light) -->
+  <div class="fixed bottom-0 inset-x-0 z-40 bg-white/95 border-t border-slate-200/90 backdrop-blur-xl p-3 sm:p-4 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- Selection Summary Badges -->
+      <div class="w-full md:w-auto flex flex-wrap items-center gap-2 text-xs">
+        <span class="font-bold text-slate-700 mr-1 hidden sm:inline font-heading">Pilihan Anda:</span>
+
+        <!-- OSIS Summary Chip -->
+        <div id="summary-osis" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 font-heading">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span class="font-semibold">OSIS: <strong class="text-slate-900">-</strong></span>
+        </div>
+
+        <!-- Ambalan Pa Summary Chip -->
+        <div id="summary-ambalan-pa" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 font-heading">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span class="font-semibold">Ambalan Pa: <strong class="text-slate-900">-</strong></span>
+        </div>
+
+        <!-- Ambalan Pi Summary Chip -->
+        <div id="summary-ambalan-pi" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 font-heading">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span class="font-semibold">Ambalan Pi: <strong class="text-slate-900">-</strong></span>
+        </div>
+      </div>
+
+      <!-- Submit Action Area -->
+      <div class="w-full md:w-auto flex items-center justify-between md:justify-end space-x-4">
+        <div class="text-left md:text-right">
+          <span class="text-[11px] text-slate-500 block">Status Kelengkapan:</span>
+          <span id="selected-counter" class="text-xs font-bold text-slate-800 font-heading">
+            <span id="selected-count" class="text-blue-800 font-extrabold text-sm">0</span> pilihan selesai
+          </span>
+        </div>
+
+        <button
+          id="btn-open-confirm"
+          disabled
+          class="flex-1 md:flex-none py-3 px-6 rounded-xl font-bold text-sm text-white bg-blue-800 hover:bg-blue-900 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer font-heading"
+        >
+          <span>Kirim Suara</span>
+          <i data-lucide="send" class="w-4 h-4 text-amber-400"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Detail Visi & Misi Calon (Modern Light) -->
+  <div id="modal-vision" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="white-card max-w-2xl w-full rounded-2xl border border-slate-200 p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200">
+      
+      <!-- Close Button -->
+      <button id="modal-btn-close" class="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Candidate Header with High-Resolution Portrait Photo -->
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 pb-5 border-b border-slate-200">
+        <!-- Photo Container -->
+        <div class="relative w-28 h-36 sm:w-32 sm:h-40 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-200 shadow-md flex-shrink-0 cursor-zoom-in" title="Klik untuk perbesar foto">
+          <img id="modal-candidate-img" src="" alt="Foto Calon" class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300" />
+          <div class="absolute bottom-1 right-1 bg-slate-900/80 text-white rounded p-1">
+            <i data-lucide="zoom-in" class="w-3 h-3"></i>
+          </div>
+        </div>
+
+        <div class="text-center sm:text-left flex-1 min-w-0">
+          <span id="modal-candidate-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200 font-heading">
+            CALON #01
+          </span>
+          <h3 id="modal-candidate-name" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2 font-heading">Nama Calon</h3>
+          <p id="modal-candidate-class" class="text-xs text-slate-500 font-semibold mt-0.5">Kelas Calon</p>
+        </div>
+      </div>
+
+      <!-- Visi & Misi Content -->
+      <div class="py-5 space-y-5 text-sm">
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center space-x-1.5 font-heading">
+            <i data-lucide="compass" class="w-4 h-4 text-amber-500"></i>
+            <span>Visi</span>
+          </h4>
+          <p id="modal-candidate-vision" class="mt-2 text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200 leading-relaxed italic">
+            -
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center space-x-1.5 font-heading">
+            <i data-lucide="target" class="w-4 h-4 text-amber-500"></i>
+            <span>Misi</span>
+          </h4>
+          <div id="modal-candidate-mission" class="mt-2 text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200 leading-relaxed whitespace-pre-line space-y-1">
+            -
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-end space-x-3">
+        <button id="modal-btn-choose" class="py-2.5 px-6 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-1.5 cursor-pointer font-heading">
+          <i data-lucide="check" class="w-4 h-4 text-amber-400"></i>
+          <span>Pilih Calon Ini</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Preview Foto Calon (Full Resolution Lightbox) -->
+  <div id="modal-photo-preview" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-lg flex items-center justify-center p-4">
+    <div class="white-card max-w-lg w-full rounded-2xl border border-slate-200 p-4 shadow-2xl relative flex flex-col items-center animate-in fade-in zoom-in duration-200">
+      
+      <!-- Top Bar -->
+      <div class="w-full flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
+        <div class="flex items-center space-x-2">
+          <span id="preview-photo-badge" class="px-2.5 py-0.5 rounded text-[11px] font-bold uppercase font-heading bg-blue-100 text-blue-800 border border-blue-200">#01</span>
+          <h4 id="preview-photo-name" class="text-sm font-bold text-slate-900 font-heading truncate max-w-[240px]">Nama Calon</h4>
+        </div>
+        <button id="btn-close-photo-preview" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Big Image Frame -->
+      <div class="relative w-full max-h-[65vh] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+        <img id="preview-photo-img" src="" alt="Preview Foto Calon" class="w-full h-full object-contain rounded-xl max-h-[65vh]" />
+      </div>
+
+      <!-- Bottom Info -->
+      <div class="w-full pt-3 mt-1 flex items-center justify-between text-xs text-slate-500">
+        <span id="preview-photo-class" class="text-slate-700 font-semibold">Kelas / Jabatan</span>
+        <button id="btn-choose-from-preview" class="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-1.5 cursor-pointer font-heading">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Pilih Calon Ini</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Final Confirmation Before Submit (Modern Light) -->
+  <div id="modal-confirm" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="white-card max-w-md w-full rounded-2xl border border-slate-200 p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+      
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-200 p-0.5 mx-auto mb-3 shadow-md flex items-center justify-center">
+          <div class="w-full h-full bg-blue-800 rounded-[14px] flex items-center justify-center">
+            <i data-lucide="help-circle" class="w-7 h-7 text-amber-400"></i>
+          </div>
+        </div>
+        <h3 class="text-xl font-extrabold text-slate-900 font-heading">Konfirmasi Suara Anda</h3>
+        <p class="text-xs text-slate-500 mt-1">Pastikan pilihan Anda sudah tepat sebelum mengirimkan suara secara permanen.</p>
+      </div>
+
+      <!-- Choices Summary List with Candidate Photos -->
+      <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3 mb-5 text-xs sm:text-sm">
+        
+        <!-- OSIS Choice -->
+        <div id="confirm-row-osis" class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div class="flex items-center space-x-3">
+            <img id="confirm-osis-img" src="" alt="OSIS" class="w-11 h-11 rounded-xl object-cover object-top border border-blue-300 flex-shrink-0 bg-white" />
+            <div>
+              <span class="text-[10px] uppercase font-bold text-blue-800 block tracking-wider font-heading">Ketua OSIS</span>
+              <span id="confirm-osis-name" class="font-bold text-slate-900 truncate block max-w-[180px] font-heading">Nama Calon</span>
+            </div>
+          </div>
+          <span id="confirm-osis-num" class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-heading font-bold text-xs">#01</span>
+        </div>
+
+        <!-- Ambalan Pa Choice -->
+        <div id="confirm-row-pa" class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div class="flex items-center space-x-3">
+            <img id="confirm-ambalan-pa-img" src="" alt="Ambalan Pa" class="w-11 h-11 rounded-xl object-cover object-top border border-amber-300 flex-shrink-0 bg-white" />
+            <div>
+              <span class="text-[10px] uppercase font-bold text-amber-800 block tracking-wider font-heading">Pradana Putra</span>
+              <span id="confirm-ambalan-pa-name" class="font-bold text-slate-900 truncate block max-w-[180px] font-heading">Nama Calon</span>
+            </div>
+          </div>
+          <span id="confirm-ambalan-pa-num" class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-heading font-bold text-xs">#01</span>
+        </div>
+
+        <!-- Ambalan Pi Choice -->
+        <div id="confirm-row-pi" class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <img id="confirm-ambalan-pi-img" src="" alt="Ambalan Pi" class="w-11 h-11 rounded-xl object-cover object-top border border-rose-300 flex-shrink-0 bg-white" />
+            <div>
+              <span class="text-[10px] uppercase font-bold text-rose-800 block tracking-wider font-heading">Pradana Putri</span>
+              <span id="confirm-ambalan-pi-name" class="font-bold text-slate-900 truncate block max-w-[180px] font-heading">Nama Calon</span>
+            </div>
+          </div>
+          <span id="confirm-ambalan-pi-num" class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-heading font-bold text-xs">#01</span>
+        </div>
+
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-start space-x-2 mb-5">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+        <span>Peringatan: Setelah tombol kirim ditekan, hak suara Anda langsung hangus dan tidak dapat diubah kembali.</span>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center space-x-3">
+        <button id="btn-cancel-confirm" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer font-heading">
+          Periksa Lagi
+        </button>
+        <button id="btn-submit-final" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-blue-800 hover:bg-blue-900 shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer font-heading">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Ya, Kirimkan!</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="./src/vote.js"></script>
+</body>
+</html>

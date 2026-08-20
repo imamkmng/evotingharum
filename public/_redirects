@@ -1,0 +1,5 @@
+# Cloudflare Pages Routing Rules
+/vote             /vote.html             200
+/realcount        /realcount.html        200
+/success          /success.html          200
+/admin            /admin.html            200

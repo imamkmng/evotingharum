@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 390" width="100%" height="100%" preserveAspectRatio="xMidYMin slice">
+  <defs>
+    <!-- Lighting Gradients -->
+    <linearGradient id="glassLeftFull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="45%" stop-color="#0f172a"/>
+      <stop offset="70%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="glassRightFull" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="45%" stop-color="#0f172a"/>
+      <stop offset="70%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="mintRoofFull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="60%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+
+    <linearGradient id="cyanPillarFull" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+
+    <linearGradient id="towerBgFull" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+
+  <g id="kampus-harum-full">
+    
+    <!-- ================= 1. LEFT WING ================= -->
+    <!-- Left Top Roof Slab -->
+    <polygon points="0,175 365,75 375,105 0,210" fill="#f8fafc"/>
+    <polygon points="0,210 375,105 375,125 0,230" fill="#cbd5e1"/>
+    <polygon points="0,230 370,125 365,150 0,250" fill="#93c5fd"/>
+    
+    <!-- Left Mint Green Eaves -->
+    <polygon points="0,140 375,70 380,105 0,175" fill="url(#mintRoofFull)"/>
+    <polygon points="0,175 380,105 380,120 0,190" fill="#0d9488"/>
+
+    <!-- Left Dark Glass Facade -->
+    <polygon points="0,240 365,145 365,390 0,390" fill="url(#glassLeftFull)"/>
+    
+    <!-- Left Window Grids & Glass Reflections -->
+    <line x1="70" y1="220" x2="70" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="150" y1="200" x2="150" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="230" y1="180" x2="230" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="310" y1="160" x2="310" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="0,300" x2="365,220" stroke="#64748b" stroke-width="3" opacity="0.5"/>
+
+    <!-- Left Cyan Pillar Column -->
+    <polygon points="95,145 130,138 130,390 95,390" fill="url(#cyanPillarFull)"/>
+    <polygon points="130,138 145,135 145,390 130,390" fill="#0369a1"/>
+
+    <!-- Left Balcony Railings -->
+    <rect x="250" y="340" width="115" height="50" fill="none" stroke="#f1f5f9" stroke-width="2.5" opacity="0.75"/>
+    <line x1="275" y1="340" x2="275" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="300" y1="340" x2="300" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="325" y1="340" x2="325" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="350" y1="340" x2="350" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+
+
+    <!-- ================= 2. RIGHT WING ================= -->
+    <!-- Right Top Roof Slab -->
+    <polygon points="1000,175 635,75 625,105 1000,210" fill="#f8fafc"/>
+    <polygon points="1000,210 625,105 625,125 1000,230" fill="#cbd5e1"/>
+    <polygon points="1000,230 630,125 635,150 1000,250" fill="#93c5fd"/>
+
+    <!-- Right Mint Green Eaves -->
+    <polygon points="1000,140 625,70 620,105 1000,175" fill="url(#mintRoofFull)"/>
+    <polygon points="1000,175 620,105 620,120 1000,190" fill="#0d9488"/>
+
+    <!-- Right Dark Glass Facade -->
+    <polygon points="1000,240 635,145 635,390 1000,390" fill="url(#glassRightFull)"/>
+
+    <!-- Right Window Grids -->
+    <line x1="930" y1="220" x2="930" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="850" y1="200" x2="850" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="770" y1="180" x2="770" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="690" y1="160" x2="690" y2="390" stroke="#38bdf8" stroke-width="4" opacity="0.6"/>
+    <line x1="1000,300" x2="635,220" stroke="#64748b" stroke-width="3" opacity="0.5"/>
+
+    <!-- Right Cyan Pillar Column -->
+    <polygon points="870,138 905,145 905,390 870,390" fill="url(#cyanPillarFull)"/>
+    <polygon points="855,135 870,138 870,390 855,390" fill="#0284c7"/>
+
+    <!-- Right Balcony Railings -->
+    <rect x="635" y="340" width="115" height="50" fill="none" stroke="#f1f5f9" stroke-width="2.5" opacity="0.75"/>
+    <line x1="660" y1="340" x2="660" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="685" y1="340" x2="685" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="710" y1="340" x2="710" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+    <line x1="735" y1="340" x2="735" y2="390" stroke="#f1f5f9" stroke-width="2" opacity="0.75"/>
+
+
+    <!-- ================= 3. CENTER CANOPY CONNECTION ================= -->
+    <polygon points="340,110 500,195 660,110 500,90" fill="#475569"/>
+    <polygon points="340,110 500,195 500,210 340,125" fill="#334155"/>
+    <polygon points="660,110 500,195 500,210 660,125" fill="#1e293b"/>
+
+
+    <!-- ================= 4. CENTER MONUMENT TOWER (KAMPUS HARUM) ================= -->
+    <!-- Tower Border Frame (Peach / Cream Arch) -->
+    <path d="M 370,140 
+             L 370,95 
+             C 370,50 410,15 470,6 
+             C 490,3 500,0 500,0 
+             C 500,0 510,3 530,6 
+             C 590,15 630,50 630,95 
+             L 630,140 
+             L 625,390 
+             L 375,390 Z" 
+          fill="#ffedd5" stroke="#fed7aa" stroke-width="3"/>
+
+    <!-- Tower Body (Dark Slate Navy) -->
+    <path d="M 382,140 
+             L 382,100 
+             C 382,60 418,28 474,18 
+             C 488,14 500,10 500,10 
+             C 500,10 512,14 526,18 
+             C 582,28 618,60 618,100 
+             L 618,140 
+             L 614,390 
+             L 386,390 Z" 
+          fill="url(#towerBgFull)"/>
+
+    <!-- Red Circular Logo Badge -->
+    <circle cx="500" cy="95" r="42" fill="#dc2626" stroke="#ffffff" stroke-width="3"/>
+    <circle cx="500" cy="95" r="36" fill="none" stroke="#fecaca" stroke-width="1.5" stroke-dasharray="3 2"/>
+    
+    <!-- Emblem Inner Content -->
+    <polygon points="500,72 508,86 524,86 511,96 516,110 500,102 484,110 489,96 476,86 492,86" fill="#fef08a" opacity="0.95"/>
+    <text x="500" y="122" font-family="'Poppins', sans-serif" font-size="9" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1.2">HARUM</text>
+
+    <!-- School URL -->
+    <text x="500" y="156" font-family="'Inter', sans-serif" font-size="11.5" font-weight="600" fill="#94a3b8" text-anchor="middle" letter-spacing="0.5">www.harapanumat.sch.id</text>
+
+    <!-- Main Title: KAMPUS HARUM -->
+    <text x="500" y="190" font-family="'Poppins', sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">KAMPUS</text>
+    <text x="500" y="228" font-family="'Poppins', sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2.5">HARUM</text>
+
+    <!-- School Units Bullet List -->
+    <g font-family="'Poppins', sans-serif" font-size="18" font-weight="800" fill="#ffffff" text-anchor="middle">
+      <text x="500" y="262" letter-spacing="1.5">- SMAIT -</text>
+      <text x="500" y="294" letter-spacing="1.5">- SMPIT -</text>
+      <text x="500" y="326" letter-spacing="1.5">- SDIT -</text>
+      <text x="500" y="358" letter-spacing="1.5">- TKIT -</text>
+      <text x="500" y="390" letter-spacing="1.5">- LPIT -</text>
+    </g>
+
+    <!-- Bottom Anchor Base -->
+    <rect x="0" y="386" width="1000" height="4" fill="#0284c7" opacity="0.8"/>
+  </g>
+</svg>
