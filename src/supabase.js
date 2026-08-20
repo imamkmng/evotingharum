@@ -115,10 +115,18 @@ function initMockStorage() {
 
 initMockStorage();
 
-// Get Supabase Client (from ENV or LocalStorage)
+// ============================================================================
+// 🔑 KONFIGURASI DATABASE SUPABASE (LANGSUNG DI FILE)
+// Masukkan Project URL dan Anon Key dari Supabase Anda di bawah ini:
+// ============================================================================
+export const DEFAULT_SUPABASE_URL = "https://cdpxdysfxzkybbxqnwdq.supabase.co";
+export const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcHhkeXNmeHpreWJieHFud2RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNDAwODAsImV4cCI6MjEwMjgxNjA4MH0.3WwRM3OM82FFQnt1BcUi9mSlmXXkCwZN1pULflfv3YA";
+// ============================================================================
+
+// Get Supabase Client (from ENV, File Constant, or LocalStorage)
 export function getSupabaseConfig() {
-  const envUrl = import.meta.env?.VITE_SUPABASE_URL || '';
-  const envKey = import.meta.env?.VITE_SUPABASE_ANON_KEY || '';
+  const envUrl = import.meta.env?.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL || '';
+  const envKey = import.meta.env?.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY || '';
 
   const localSaved = localStorage.getItem(CONFIG_STORAGE_KEY);
   if (localSaved) {
