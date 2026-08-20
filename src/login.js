@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   const btnLogin = document.getElementById('btn-login');
   const alertBox = document.getElementById('alert-box');
-  const quickFillButtons = document.querySelectorAll('.quick-fill');
 
   function setRole(role) {
     currentRole = role;
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabSiswa) tabSiswa.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-blue-800 text-white shadow-sm font-heading cursor-pointer';
       if (tabGuru) tabGuru.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 font-heading cursor-pointer';
       if (inputLabel) inputLabel.textContent = 'Nomor Induk Siswa Nasional (NISN)';
-      if (idInput) idInput.placeholder = 'Contoh: 0081234501';
+      if (idInput) idInput.placeholder = 'Masukkan Nomor NISN';
       if (inputHint) {
         inputHint.innerHTML = `
           <svg class="w-3.5 h-3.5 text-blue-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="16" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2"></line></svg>
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabGuru) tabGuru.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-amber-600 text-white shadow-sm font-heading cursor-pointer';
       if (tabSiswa) tabSiswa.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 font-heading cursor-pointer';
       if (inputLabel) inputLabel.textContent = 'Nomor Induk Pegawai / Yayasan (NIP/NIY)';
-      if (idInput) idInput.placeholder = 'Contoh: 198501152010011002 atau NIY2022091001';
+      if (idInput) idInput.placeholder = 'Masukkan Nomor NIP atau NIY';
       if (inputHint) {
         inputHint.innerHTML = `
           <svg class="w-3.5 h-3.5 text-amber-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="16" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2"></line></svg>
@@ -62,16 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (tabSiswa) tabSiswa.addEventListener('click', () => setRole('siswa'));
   if (tabGuru) tabGuru.addEventListener('click', () => setRole('guru'));
-
-  // Quick fill demo buttons
-  quickFillButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const role = btn.getAttribute('data-role');
-      const id = btn.getAttribute('data-id');
-      setRole(role);
-      if (idInput) idInput.value = id;
-    });
-  });
 
   function showAlert(message, type = 'error') {
     if (!alertBox) return;

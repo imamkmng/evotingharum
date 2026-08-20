@@ -121,12 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateDbStatusBadge() {
     const badge = document.getElementById('db-status-badge');
     const text = document.getElementById('db-status-text');
-    if (isSupabaseConnected()) {
-      badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700 font-heading';
-      text.textContent = 'Supabase Cloud Aktif';
-    } else {
-      badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 border border-amber-200 text-amber-800 font-heading';
-      text.textContent = 'Mode Uji Coba (Mock DB)';
+    if (badge && text) {
+      if (isSupabaseConnected()) {
+        badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700 font-heading';
+        text.textContent = 'Database Supabase Terhubung';
+      } else {
+        badge.className = 'hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 border border-red-200 text-red-700 font-heading';
+        text.textContent = 'Database Belum Terhubung';
+      }
     }
   }
 
@@ -880,13 +882,15 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.reload();
     });
 
-    btnClear.addEventListener('click', () => {
-      if (confirm('Kembalikan ke mode lokal uji coba (Mock DB)?')) {
-        clearSupabaseConfig();
-        alert('Konfigurasi dibersihkan.');
-        window.location.reload();
-      }
-    });
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        if (confirm('Bersihkan kredensial Supabase tersimpan?')) {
+          clearSupabaseConfig();
+          alert('Konfigurasi dibersihkan.');
+          window.location.reload();
+        }
+      });
+    }
 
     // C. Custom School Background Image
     const bgSchoolInput = document.getElementById('bg-school-file-input');
