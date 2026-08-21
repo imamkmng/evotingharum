@@ -256,20 +256,48 @@ document.addEventListener('DOMContentLoaded', () => {
   async function exportResultsCSV() {
     try {
       const stats = await fetchRealCountStats();
-      let csv = 'Kategori Pemilihan,Nomor Urut,Nama Calon / Pasangan,Perolehan Suara,Persentase Suara,Status\n';
+      const candidates = stats.candidates || [];
+      const summary = stats.summary || {};
 
-      (stats.categories || []).forEach(cat => {
-        const catTotal = (cat.candidates || []).reduce((acc, c) => acc + (c.votes_count || 0), 0);
-        const sorted = [...(cat.candidates || [])].sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0));
-        const maxVotes = sorted.length > 0 ? (sorted[0].votes_count || 0) : 0;
+      const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' }) + ' WIB';
+      
+      let csv = 'REKAPITULASI HASIL PERHITUNGAN SUARA E-VOTING\n';
+      csv += 'SEKOLAH ISLAM TERPADU HARAPAN UMAT KARAWANG\n';
+      csv += `Waktu Unduh: ${nowStr}\n`;
+      csv += `Total DPT: ${summary.totalVoters || 0} Pemilih | Total Suara Masuk: ${summary.votedCount || 0} Suara (${summary.turnoutPercent || 0}%) | Belum Memilih: ${summary.unvotedCount || 0} Suara\n\n`;
+      
+      csv += 'Kategori Pemilihan,Nomor Urut,Nama Calon / Pasangan,Kelas / Jabatan,Perolehan Suara,Persentase Suara,Status / Keterangan\n';
 
-        sorted.forEach((c, idx) => {
-          const pct = catTotal > 0 ? ((c.votes_count || 0) / catTotal * 100).toFixed(1) + '%' : '0.0%';
-          const status = idx === 0 && maxVotes > 0 ? 'TERPILIH' : 'Kandidat';
-          const safeName = `"${(c.name || '').replace(/"/g, '""')}"`;
-          const safeCat = `"${(cat.title || '').replace(/"/g, '""')}"`;
-          csv += `${safeCat},${c.candidate_number || ''},${safeName},${c.votes_count || 0},${pct},${status}\n`;
-        });
+      const categories = [
+        { key: 'osis', title: 'Ketua & Wakil Ketua OSIS' },
+        { key: 'ambalan_putra', title: 'Pradana Ambalan Putra' },
+        { key: 'ambalan_putri', title: 'Pradana Ambalan Putri' }
+      ];
+
+      categories.forEach(cat => {
+        const cList = candidates
+          .filter(c => c.position === cat.key)
+          .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0));
+        
+        const catTotal = cList.reduce((acc, c) => acc + (c.vote_count || 0), 0);
+        const maxVotes = cList.length > 0 ? (cList[0].vote_count || 0) : 0;
+
+        if (cList.length === 0) {
+          csv += `"${cat.title}",-,"(Belum ada kandidat)",-,0,0.0%,-\n`;
+        } else {
+          cList.forEach((c, idx) => {
+            const count = c.vote_count || 0;
+            const pct = catTotal > 0 ? ((count / catTotal) * 100).toFixed(1) + '%' : '0.0%';
+            const isWinner = idx === 0 && maxVotes > 0 && count === maxVotes;
+            const status = isWinner ? 'TERPILIH' : 'Kandidat';
+            const num = '#' + String(c.candidate_number || (idx + 1)).padStart(2, '0');
+            const safeName = `"${(c.name || '').replace(/"/g, '""')}"`;
+            const safeClass = `"${(c.class_grade || '-').replace(/"/g, '""')}"`;
+            const safeCat = `"${cat.title}"`;
+            
+            csv += `${safeCat},${num},${safeName},${safeClass},${count},${pct},${status}\n`;
+          });
+        }
       });
 
       triggerCsvDownload(csv, 'rekap_hasil_pemilihan_harum.csv');
@@ -281,14 +309,26 @@ document.addEventListener('DOMContentLoaded', () => {
   async function exportVotersCSV() {
     try {
       const voters = await adminGetAllVoters();
-      let csv = 'No,NISN_NIP,Nama Lengkap,Kategori Pemilih,Status Memilih\n';
+      const total = voters.length;
+      const voted = voters.filter(v => v.has_voted).length;
+      const unvoted = total - voted;
+      const pct = total > 0 ? ((voted / total) * 100).toFixed(1) : 0;
+      const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' }) + ' WIB';
+
+      let csv = 'DAFTAR PEMILIH TETAP (DPT) & STATUS KEHADIRAN MEMILIH\n';
+      csv += 'SEKOLAH ISLAM TERPADU HARAPAN UMAT KARAWANG\n';
+      csv += `Waktu Unduh: ${nowStr}\n`;
+      csv += `Total DPT: ${total} | Sudah Memilih: ${voted} (${pct}%) | Belum Memilih: ${unvoted}\n\n`;
+
+      csv += 'No,NISN / NIP,Nama Lengkap,Kategori Pemilih,Status Memilih,Waktu Memilih\n';
 
       voters.forEach((v, idx) => {
         const safeId = `"${(v.id_number || '').replace(/"/g, '""')}"`;
         const safeName = `"${(v.name || '').replace(/"/g, '""')}"`;
         const role = v.role === 'guru' ? 'Guru / Tenaga Pendidik' : 'Siswa';
         const status = v.has_voted ? 'Sudah Memilih' : 'Belum Memilih';
-        csv += `${idx + 1},${safeId},${safeName},${role},${status}\n`;
+        const votedAt = v.voted_at ? `"${new Date(v.voted_at).toLocaleString('id-ID')}"` : '-';
+        csv += `${idx + 1},${safeId},${safeName},${role},${status},${votedAt}\n`;
       });
 
       triggerCsvDownload(csv, 'rekap_kehadiran_dpt_harum.csv');
