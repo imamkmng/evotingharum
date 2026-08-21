@@ -115,12 +115,6 @@
             <span class="hidden sm:inline">Layar Penuh</span>
           </button>
 
-          <!-- Quick Print Report Button -->
-          <button id="btn-top-print-report" type="button" class="px-3.5 py-1.5 rounded-xl bg-[#007979] text-white hover:bg-[#005f5f] text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer" title="Cetak Berita Acara & Laporan">
-            <i data-lucide="printer" class="w-3.5 h-3.5 text-amber-300"></i>
-            <span class="hidden sm:inline">Cetak Laporan</span>
-          </button>
-
           <a href="/realcount.html" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs">
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-500"></i>
             <span class="hidden sm:inline">Buka Real Count</span>
@@ -195,30 +189,26 @@
           </div>
         </div>
 
-        <!-- Download Laporan & Berita Acara Card -->
+        <!-- Download Laporan / Rekapitulasi Suara Card -->
         <div class="white-card rounded-2xl p-5 border border-teal-200 bg-gradient-to-r from-teal-50/70 via-white to-amber-50/40 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
               <div class="w-8 h-8 rounded-lg bg-[#007979] text-white flex items-center justify-center shadow-xs">
-                <i data-lucide="file-check-2" class="w-4 h-4 text-amber-300"></i>
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-amber-300"></i>
               </div>
-              <h3 class="text-sm font-extrabold text-slate-900 font-heading">Unduh Laporan & Berita Acara Pemilu</h3>
+              <h3 class="text-sm font-extrabold text-slate-900 font-heading">Unduh Laporan & Rekapitulasi Suara</h3>
             </div>
-            <p class="text-xs text-slate-600 font-sans">Cetak dokumen Berita Acara resmi berkop surat atau unduh data rekapitulasi format spreadsheet CSV/Excel.</p>
+            <p class="text-xs text-slate-600 font-sans">Download data rekapitulasi perolehan suara atau daftar kehadiran DPT dalam format spreadsheet (.CSV / Excel).</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-            <button id="btn-open-report-modal" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-[#007979] hover:bg-[#005f5f] text-white shadow-xs transition-all flex items-center justify-center space-x-2 font-heading cursor-pointer">
-              <i data-lucide="printer" class="w-4 h-4 text-amber-300"></i>
-              <span>Cetak / PDF Berita Acara</span>
+            <button id="btn-download-results-csv" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-[#007979] hover:bg-[#005f5f] text-white shadow-xs transition-all flex items-center justify-center space-x-2 font-heading cursor-pointer" title="Download Rekap Suara CSV">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-amber-300"></i>
+              <span>Unduh Rekap Suara (.CSV)</span>
             </button>
-            <button id="btn-download-results-csv" type="button" class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all flex items-center justify-center space-x-1.5 font-heading cursor-pointer shadow-xs" title="Download Rekap Suara CSV">
-              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i>
-              <span>Rekap Suara (.CSV)</span>
-            </button>
-            <button id="btn-download-voters-csv" type="button" class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all flex items-center justify-center space-x-1.5 font-heading cursor-pointer shadow-xs" title="Download Kehadiran DPT CSV">
-              <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-              <span>Kehadiran DPT (.CSV)</span>
+            <button id="btn-download-voters-csv" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all flex items-center justify-center space-x-2 font-heading cursor-pointer shadow-xs" title="Download Kehadiran DPT CSV">
+              <i data-lucide="users" class="w-4 h-4 text-[#007979]"></i>
+              <span>Unduh Kehadiran DPT (.CSV)</span>
             </button>
           </div>
         </div>
@@ -787,126 +777,6 @@
 
       <!-- Hidden Settings container -->
       <div id="tab-content-settings" class="hidden" style="display: none !important;"></div>
-
-    </main>
-
-  </div>
-
-  <!-- ================= PRINT REPORT MODAL (BERITA ACARA RESMI) ================= -->
-  <div id="print-report-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-white text-slate-900 max-w-4xl w-full rounded-2xl p-4 sm:p-8 shadow-2xl border border-slate-200 my-auto max-h-[92vh] overflow-y-auto">
-      
-      <!-- Modal Top Controls (Hidden during actual print) -->
-      <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-6 print:hidden">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="file-check-2" class="w-5 h-5 text-[#007979]"></i>
-          <h3 class="text-base font-extrabold text-slate-900 font-heading">Dokumen Berita Acara & Laporan Pemilihan</h3>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button id="btn-do-print" type="button" class="px-4 py-2 rounded-xl bg-[#007979] hover:bg-[#005f5f] text-white text-xs font-bold font-heading flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer">
-            <i data-lucide="printer" class="w-4 h-4 text-amber-300"></i>
-            <span>Cetak / Simpan PDF</span>
-          </button>
-          <button id="btn-close-print-modal" type="button" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold font-heading transition-all cursor-pointer">
-            Tutup
-          </button>
-        </div>
-      </div>
-
-      <!-- Printable Document Layout -->
-      <div id="printable-report-content" class="bg-white p-2 sm:p-6 text-black font-sans leading-relaxed">
-        
-        <!-- Kop Surat Resmi -->
-        <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6 text-center">
-          <div class="w-20 h-20 flex-shrink-0 flex items-center justify-center">
-            <img src="/logo-harum.png" onerror="this.onerror=null; this.src='/logo-harum.svg';" class="w-20 h-20 object-contain" alt="Logo SIT Harapan Umat" />
-          </div>
-          <div class="flex-1 px-4">
-            <h2 class="text-lg sm:text-xl font-black uppercase tracking-wider font-heading">SEKOLAH ISLAM TERPADU HARAPAN UMAT KARAWANG</h2>
-            <h3 class="text-sm sm:text-base font-bold uppercase font-heading text-slate-900">PANITIA PEMILIHAN KETUA OSIS & PRADANA AMBALAN</h3>
-            <p class="text-xs text-slate-700 mt-0.5">Sistem Pemilihan Elektronik (E-Voting) Terenkripsi dan Real-Time</p>
-          </div>
-          <div class="w-20 h-20 flex-shrink-0 opacity-0 hidden sm:block"></div>
-        </div>
-
-        <!-- Judul Berita Acara -->
-        <div class="text-center mb-6">
-          <h4 class="text-base sm:text-lg font-black uppercase tracking-wide underline font-heading">BERITA ACARA REKAPITULASI HASIL PEMILIHAN</h4>
-          <p class="text-xs text-slate-700 mt-1 font-mono">Waktu Cetak: <span id="rpt-timestamp">-</span></p>
-        </div>
-
-        <!-- Narasi Pembuka -->
-        <p class="text-xs text-justify mb-5 leading-relaxed">
-          Pada hari ini, <strong id="rpt-date-narrative">-</strong>, telah dilaksanakan rekapitulasi perhitungan suara akhir Pemilihan Ketua & Wakil Ketua OSIS serta Pradana Ambalan Pramuka Gugus Depan SIT Harapan Umat Karawang secara elektronik dengan rincian data sebagai berikut:
-        </p>
-
-        <!-- Tabel 1: Partisipasi Pemilih -->
-        <div class="mb-6">
-          <h5 class="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2 font-heading">I. DATA DAFTAR PEMILIH TETAP (DPT) & PARTISIPASI</h5>
-          <table class="w-full border border-black text-xs text-left">
-            <tbody>
-              <tr class="border-b border-black bg-slate-50">
-                <td class="p-2 font-bold w-1/2 border-r border-black">Total Daftar Pemilih Tetap (DPT)</td>
-                <td class="p-2 font-mono font-bold" id="rpt-total-voters">0 Pemilih</td>
-              </tr>
-              <tr class="border-b border-black">
-                <td class="p-2 font-bold border-r border-black">Jumlah Suara Masuk (Telah Memilih)</td>
-                <td class="p-2 font-mono font-bold text-emerald-800" id="rpt-voted-count">0 Suara</td>
-              </tr>
-              <tr class="border-b border-black bg-slate-50">
-                <td class="p-2 font-bold border-r border-black">Persentase Partisipasi Pemilih</td>
-                <td class="p-2 font-mono font-bold text-[#007979]" id="rpt-turnout-pct">0%</td>
-              </tr>
-              <tr>
-                <td class="p-2 font-bold border-r border-black">Jumlah Hak Suara Belum Digunakan</td>
-                <td class="p-2 font-mono font-bold text-amber-800" id="rpt-unvoted-count">0 Suara</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Tabel 2: Hasil Perolehan Suara Calon -->
-        <div class="mb-6">
-          <h5 class="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2 font-heading">II. HASIL PEROLEHAN SUARA KANDIDAT</h5>
-          <div id="rpt-candidates-tables" class="space-y-4">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Penetapan Hasil -->
-        <div class="mb-6 p-3.5 border border-black bg-slate-50 text-xs">
-          <h5 class="font-bold uppercase mb-1 font-heading">III. KETERANGAN & PENETAPAN:</h5>
-          <p class="text-[11px] leading-relaxed">
-            Berdasarkan hasil pemungutan suara elektronik di atas, kandidat dengan perolehan suara terbanyak pada masing-masing kategori pemilihan dinyatakan sah sebagai kandidat terpilih. Seluruh data perolehan suara telah diverifikasi dan dienkripsi oleh sistem E-Voting.
-          </p>
-        </div>
-
-        <!-- Kolom Tanda Tangan Panitia & Saksi -->
-        <div class="mt-8 pt-4 border-t border-black text-xs">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div>
-              <p class="font-semibold text-[11px] mb-14">Ketua Panitia Pemilihan,</p>
-              <p class="font-bold underline">( ........................................ )</p>
-            </div>
-            <div>
-              <p class="font-semibold text-[11px] mb-14">Sekretaris Panitia,</p>
-              <p class="font-bold underline">( ........................................ )</p>
-            </div>
-            <div>
-              <p class="font-semibold text-[11px] mb-14">Saksi Siswa / Demisioner,</p>
-              <p class="font-bold underline">( ........................................ )</p>
-            </div>
-            <div>
-              <p class="font-semibold text-[11px] mb-14">Pembina OSIS / Kesiswaan,</p>
-              <p class="font-bold underline">( ........................................ )</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
 
     </main>
 

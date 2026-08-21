@@ -238,31 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // -------------------------------------------------------------
-  // 4.5. REPORT GENERATION & DOWNLOAD ACTIONS
+  // 4.5. REPORT GENERATION & DOWNLOAD ACTIONS (CSV EXPORT)
   // -------------------------------------------------------------
   function setupReportActions() {
-    const btnTopPrint = document.getElementById('btn-top-print-report');
-    const btnOpenReport = document.getElementById('btn-open-report-modal');
-    const btnClosePrint = document.getElementById('btn-close-print-modal');
-    const btnDoPrint = document.getElementById('btn-do-print');
     const btnDownloadResults = document.getElementById('btn-download-results-csv');
     const btnDownloadVoters = document.getElementById('btn-download-voters-csv');
-    const printModal = document.getElementById('print-report-modal');
-
-    if (btnTopPrint) btnTopPrint.addEventListener('click', openPrintReportModal);
-    if (btnOpenReport) btnOpenReport.addEventListener('click', openPrintReportModal);
-    
-    if (btnClosePrint && printModal) {
-      btnClosePrint.addEventListener('click', () => {
-        printModal.classList.add('hidden');
-      });
-    }
-
-    if (btnDoPrint) {
-      btnDoPrint.addEventListener('click', () => {
-        window.print();
-      });
-    }
 
     if (btnDownloadResults) {
       btnDownloadResults.addEventListener('click', exportResultsCSV);
@@ -270,85 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnDownloadVoters) {
       btnDownloadVoters.addEventListener('click', exportVotersCSV);
-    }
-  }
-
-  async function openPrintReportModal() {
-    const printModal = document.getElementById('print-report-modal');
-    if (!printModal) return;
-
-    try {
-      const stats = await fetchRealCountStats();
-      const now = new Date();
-
-      const rptTimestamp = document.getElementById('rpt-timestamp');
-      const rptDateNarrative = document.getElementById('rpt-date-narrative');
-      const rptTotalVoters = document.getElementById('rpt-total-voters');
-      const rptVotedCount = document.getElementById('rpt-voted-count');
-      const rptTurnoutPct = document.getElementById('rpt-turnout-pct');
-      const rptUnvotedCount = document.getElementById('rpt-unvoted-count');
-      const rptCandidatesTables = document.getElementById('rpt-candidates-tables');
-
-      if (rptTimestamp) {
-        rptTimestamp.textContent = now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' }) + ' WIB';
-      }
-      if (rptDateNarrative) {
-        rptDateNarrative.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      }
-      if (rptTotalVoters) rptTotalVoters.textContent = `${stats.totalVoters || 0} Pemilih`;
-      if (rptVotedCount) rptVotedCount.textContent = `${stats.votedCount || 0} Suara`;
-      if (rptTurnoutPct) rptTurnoutPct.textContent = `${stats.turnoutPercentage || 0}%`;
-      if (rptUnvotedCount) rptUnvotedCount.textContent = `${stats.unvotedCount || 0} Suara`;
-
-      if (rptCandidatesTables && stats.categories) {
-        rptCandidatesTables.innerHTML = stats.categories.map((cat, idx) => {
-          const categoryTotalVotes = (cat.candidates || []).reduce((acc, c) => acc + (c.votes_count || 0), 0);
-          const sortedCandidates = [...(cat.candidates || [])].sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0));
-          const maxVotes = sortedCandidates.length > 0 ? (sortedCandidates[0].votes_count || 0) : 0;
-
-          return `
-            <div class="border border-black p-3 bg-white">
-              <div class="flex items-center justify-between border-b border-black pb-1.5 mb-2 font-bold">
-                <span class="text-xs uppercase">${idx + 1}. Kategori: ${cat.title}</span>
-                <span class="text-[11px]">Total Suara Masuk: ${categoryTotalVotes} Suara</span>
-              </div>
-              <table class="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-black bg-slate-100 font-bold">
-                    <th class="p-1.5 border-r border-black w-14 text-center">No. Urut</th>
-                    <th class="p-1.5 border-r border-black">Nama Calon / Pasangan</th>
-                    <th class="p-1.5 border-r border-black w-24 text-right">Perolehan Suara</th>
-                    <th class="p-1.5 border-r border-black w-20 text-right">Persentase</th>
-                    <th class="p-1.5 w-24 text-center">Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${sortedCandidates.map((c, cIdx) => {
-                    const pct = categoryTotalVotes > 0 ? ((c.votes_count || 0) / categoryTotalVotes * 100).toFixed(1) : '0.0';
-                    const isWinner = cIdx === 0 && maxVotes > 0;
-                    return `
-                      <tr class="border-b border-slate-300 ${isWinner ? 'bg-emerald-50 font-bold' : ''}">
-                        <td class="p-1.5 border-r border-black text-center font-mono">${c.candidate_number || '-'}</td>
-                        <td class="p-1.5 border-r border-black">${c.name || '-'}</td>
-                        <td class="p-1.5 border-r border-black text-right font-mono">${c.votes_count || 0}</td>
-                        <td class="p-1.5 border-r border-black text-right font-mono">${pct}%</td>
-                        <td class="p-1.5 text-center text-[10px] uppercase font-bold ${isWinner ? 'text-emerald-800' : 'text-slate-500'}">
-                          ${isWinner ? '★ TERPILIH' : '-'}
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          `;
-        }).join('');
-      }
-
-      printModal.classList.remove('hidden');
-      if (window.lucide) window.lucide.createIcons();
-    } catch (err) {
-      alert('Gagal memuat data laporan: ' + err.message);
     }
   }
 
