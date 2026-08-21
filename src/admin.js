@@ -993,6 +993,7 @@ CREATE TABLE IF NOT EXISTS public.voters (
         }
       });
     }
+  }
 
   // -------------------------------------------------------------
   // 6. TAB 4: PERSONALISASI & TAMPILAN
