@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   // 2. TABS SWITCHING
   // -------------------------------------------------------------
-  const tabs = ['overview', 'voters', 'candidates'];
+  const tabs = ['overview', 'voters', 'candidates', 'personalization'];
   tabs.forEach(tabKey => {
     const btn = document.getElementById(`tab-btn-${tabKey}`);
     if (btn) {
@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeKey === 'overview') loadOverviewData();
     if (activeKey === 'voters') loadVotersData();
     if (activeKey === 'candidates') loadCandidatesData();
+    if (activeKey === 'personalization') loadPersonalizationData();
     if (window.lucide) window.lucide.createIcons();
   }
 
@@ -115,13 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function initDashboard() {
     updateDbStatusBadge();
     loadOverviewData();
+    applyCustomBranding();
 
     if (!isDashboardInitialized) {
       isDashboardInitialized = true;
       setupReportActions();
       setupVotersTab();
       setupCandidatesTab();
-      setupSettingsTab();
+      setupPersonalizationTab();
     }
   }
 
@@ -1091,39 +1093,206 @@ CREATE TABLE IF NOT EXISTS public.voters (
       });
     }
 
-    // C. Custom School Background Image
-    const bgSchoolInput = document.getElementById('bg-school-file-input');
-    const bgSchoolPreview = document.getElementById('bg-school-preview-img');
-    const btnResetSchoolBg = document.getElementById('btn-reset-school-bg');
+  // -------------------------------------------------------------
+  // 6. TAB 4: PERSONALISASI & TAMPILAN
+  // -------------------------------------------------------------
+  let tempCustomBg = null;
+  let tempCustomLogo = null;
 
-    const customBg = localStorage.getItem('custom_bg_school');
-    if (customBg && bgSchoolPreview) {
-      bgSchoolPreview.src = customBg;
+  async function loadPersonalizationData() {
+    try {
+      const settings = await fetchElectionSettings();
+      const schoolNameInput = document.getElementById('pers-school-name');
+      const electionTitleInput = document.getElementById('pers-election-title');
+      const electionPeriodInput = document.getElementById('pers-election-period');
+
+      if (schoolNameInput && settings.school_name) schoolNameInput.value = settings.school_name;
+      if (electionTitleInput && settings.election_title) electionTitleInput.value = settings.election_title;
+      if (electionPeriodInput && settings.election_period) electionPeriodInput.value = settings.election_period;
+    } catch (e) {
+      console.warn('Gagal memuat setting identitas:', e);
+    }
+  }
+
+  function setupPersonalizationTab() {
+    loadPersonalizationData();
+
+    // A. Background Controls
+    const bgInput = document.getElementById('pers-bg-file-input');
+    const bgPreview = document.getElementById('pers-bg-preview-img');
+    const bgOpacitySlider = document.getElementById('pers-bg-opacity-slider');
+    const bgOpacityVal = document.getElementById('pers-bg-opacity-val');
+    const btnSaveBg = document.getElementById('btn-pers-save-bg');
+    const btnResetBg = document.getElementById('btn-pers-reset-bg');
+
+    // Init existing background & opacity
+    const savedBg = localStorage.getItem('custom_bg_school');
+    const savedOpacity = localStorage.getItem('custom_bg_opacity') || '30';
+
+    if (savedBg && bgPreview) {
+      bgPreview.src = savedBg;
+      tempCustomBg = savedBg;
+    }
+    if (bgOpacitySlider && bgOpacityVal && bgPreview) {
+      bgOpacitySlider.value = savedOpacity;
+      bgOpacityVal.textContent = `${savedOpacity}%`;
+      bgPreview.style.opacity = (parseFloat(savedOpacity) / 100).toString();
+
+      bgOpacitySlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        bgOpacityVal.textContent = `${val}%`;
+        bgPreview.style.opacity = (parseFloat(val) / 100).toString();
+      });
     }
 
-    if (bgSchoolInput) {
-      bgSchoolInput.addEventListener('change', (e) => {
+    if (bgInput) {
+      bgInput.addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = (loadEvt) => {
-            const dataUrl = loadEvt.target.result;
-            localStorage.setItem('custom_bg_school', dataUrl);
-            if (bgSchoolPreview) bgSchoolPreview.src = dataUrl;
-            alert('Gambar asli background sekolah berhasil disimpan dan langsung diterapkan ke halaman Login & Real Count!');
+          reader.onload = (evt) => {
+            tempCustomBg = evt.target.result;
+            if (bgPreview) bgPreview.src = tempCustomBg;
           };
           reader.readAsDataURL(file);
         }
       });
     }
 
-    if (btnResetSchoolBg) {
-      btnResetSchoolBg.addEventListener('click', () => {
-        if (confirm('Kembalikan background ke gambar bawaan?')) {
-          localStorage.removeItem('custom_bg_school');
-          if (bgSchoolPreview) bgSchoolPreview.src = '/bg-school.png';
-          alert('Background dikembalikan ke default.');
+    if (btnSaveBg) {
+      btnSaveBg.addEventListener('click', () => {
+        if (tempCustomBg) {
+          localStorage.setItem('custom_bg_school', tempCustomBg);
         }
+        if (bgOpacitySlider) {
+          localStorage.setItem('custom_bg_opacity', bgOpacitySlider.value);
+        }
+        applyCustomBranding();
+        alert('Background sekolah dan tingkat transparansi berhasil disimpan!');
+      });
+    }
+
+    if (btnResetBg) {
+      btnResetBg.addEventListener('click', () => {
+        if (confirm('Kembalikan latar belakang ke background bawaan?')) {
+          localStorage.removeItem('custom_bg_school');
+          localStorage.removeItem('custom_bg_opacity');
+          tempCustomBg = null;
+          if (bgPreview) {
+            bgPreview.src = '/bg-school.png';
+            bgPreview.style.opacity = '0.3';
+          }
+          if (bgOpacitySlider && bgOpacityVal) {
+            bgOpacitySlider.value = '30';
+            bgOpacityVal.textContent = '30%';
+          }
+          applyCustomBranding();
+          alert('Latar belakang dikembalikan ke default.');
+        }
+      });
+    }
+
+    // B. Logo Controls
+    const logoInput = document.getElementById('pers-logo-file-input');
+    const logoCircle = document.getElementById('pers-logo-preview-circle');
+    const logoSquare = document.getElementById('pers-logo-preview-square');
+    const btnSaveLogo = document.getElementById('btn-pers-save-logo');
+    const btnResetLogo = document.getElementById('btn-pers-reset-logo');
+
+    const savedLogo = localStorage.getItem('custom_logo_school');
+    if (savedLogo) {
+      tempCustomLogo = savedLogo;
+      if (logoCircle) logoCircle.src = savedLogo;
+      if (logoSquare) logoSquare.src = savedLogo;
+    }
+
+    if (logoInput) {
+      logoInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            tempCustomLogo = evt.target.result;
+            if (logoCircle) logoCircle.src = tempCustomLogo;
+            if (logoSquare) logoSquare.src = tempCustomLogo;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (btnSaveLogo) {
+      btnSaveLogo.addEventListener('click', () => {
+        if (!tempCustomLogo) {
+          alert('Silakan pilih file gambar logo terlebih dahulu.');
+          return;
+        }
+        localStorage.setItem('custom_logo_school', tempCustomLogo);
+        applyCustomBranding();
+        alert('Logo resmi baru berhasil disimpan dan diterapkan!');
+      });
+    }
+
+    if (btnResetLogo) {
+      btnResetLogo.addEventListener('click', () => {
+        if (confirm('Kembalikan logo ke Logo Resmi SIT Harapan Umat Karawang?')) {
+          localStorage.removeItem('custom_logo_school');
+          tempCustomLogo = null;
+          if (logoCircle) logoCircle.src = '/logo-harum.png';
+          if (logoSquare) logoSquare.src = '/logo-harum.png';
+          applyCustomBranding();
+          alert('Logo dikembalikan ke Logo SIT Harapan Umat Karawang.');
+        }
+      });
+    }
+
+    // C. Form Identitas Pemilihan
+    const formIdentity = document.getElementById('form-pers-identity');
+    const schoolNameInput = document.getElementById('pers-school-name');
+    const electionTitleInput = document.getElementById('pers-election-title');
+    const electionPeriodInput = document.getElementById('pers-election-period');
+
+    if (formIdentity) {
+      formIdentity.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const school_name = schoolNameInput ? schoolNameInput.value.trim() : 'SIT HARAPAN UMAT KARAWANG';
+        const election_title = electionTitleInput ? electionTitleInput.value.trim() : 'PEMILIHAN KETUA OSIS & PRADANA AMBALAN';
+        const election_period = electionPeriodInput ? electionPeriodInput.value.trim() : '2026/2027';
+
+        try {
+          await saveElectionSettings({
+            school_name,
+            election_title,
+            election_period
+          });
+          localStorage.setItem('custom_school_name', school_name);
+          alert('Identitas pemilihan berhasil disimpan ke database!');
+        } catch (err) {
+          alert('Gagal menyimpan identitas: ' + err.message);
+        }
+      });
+    }
+  }
+
+  function applyCustomBranding() {
+    const customBg = localStorage.getItem('custom_bg_school');
+    const customOpacity = localStorage.getItem('custom_bg_opacity');
+    const customLogo = localStorage.getItem('custom_logo_school');
+
+    const bgImages = document.querySelectorAll('#school-bg-image');
+    bgImages.forEach(img => {
+      if (customBg) img.src = customBg;
+      else img.src = '/bg-school.png';
+
+      if (customOpacity) {
+        img.style.opacity = (parseFloat(customOpacity) / 100).toString();
+      }
+    });
+
+    if (customLogo) {
+      const logoImgs = document.querySelectorAll('img[src*="logo-harum"], img[alt*="Logo"], img[alt*="SIT Harapan Umat"]');
+      logoImgs.forEach(img => {
+        img.src = customLogo;
       });
     }
   }
@@ -1151,5 +1320,8 @@ CREATE TABLE IF NOT EXISTS public.voters (
       if (window.lucide) window.lucide.createIcons();
     });
   }
+
+  // Apply branding initially
+  applyCustomBranding();
 
 });
