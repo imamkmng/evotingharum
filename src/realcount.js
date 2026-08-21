@@ -99,8 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnChartBar.addEventListener('click', () => {
       if (currentChartType === 'bar') return;
       currentChartType = 'bar';
-      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white shadow transition-all flex items-center space-x-1';
-      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all flex items-center space-x-1';
+      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
       rebuildAllCharts();
       if (window.lucide) window.lucide.createIcons();
     });
@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnChartDoughnut.addEventListener('click', () => {
       if (currentChartType === 'doughnut') return;
       currentChartType = 'doughnut';
-      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white shadow transition-all flex items-center space-x-1';
-      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition-all flex items-center space-x-1';
+      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
       rebuildAllCharts();
       if (window.lucide) window.lucide.createIcons();
     });
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (lastUpdatedTime) lastUpdatedTime.textContent = summary.lastUpdated;
 
       // 2. Render / Update Charts with distinct candidate colors
-      const osisPalette = ['#1E40AF', '#0284C7', '#6366F1', '#0D9488', '#4338CA', '#0891B2'];
+      const osisPalette = ['#007979', '#0284C7', '#0D9488', '#009688', '#005F5F', '#20B2AA'];
       const ambalanPaPalette = ['#D97706', '#EA580C', '#CA8A04', '#B45309', '#C2410C', '#A16207'];
       const ambalanPiPalette = ['#E11D48', '#DB2777', '#9333EA', '#BE185D', '#C026D3', '#9F1239'];
 
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOrRenderChart('ambalan_putri', 'chart-pi', 'chart-total-pi', candidates, ambalanPiPalette);
 
       // 3. Render Cards
-      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', 'blue', osisPalette);
+      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', 'teal', osisPalette);
       renderCategoryCards('ambalan_putra', candidates, 'realcount-grid-pa', 'total-pa-votes-badge', 'amber', ambalanPaPalette);
       renderCategoryCards('ambalan_putri', candidates, 'realcount-grid-pi', 'total-pi-votes-badge', 'rose', ambalanPiPalette);
 
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const osisPalette = ['#1E40AF', '#0284C7', '#6366F1', '#0D9488', '#4338CA', '#0891B2'];
+    const osisPalette = ['#007979', '#0284C7', '#0D9488', '#009688', '#005F5F', '#20B2AA'];
     const ambalanPaPalette = ['#D97706', '#EA580C', '#CA8A04', '#B45309', '#C2410C', '#A16207'];
     const ambalanPiPalette = ['#E11D48', '#DB2777', '#9333EA', '#BE185D', '#C026D3', '#9F1239'];
 
@@ -300,12 +300,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const numFormatted = String(c.candidate_number).padStart(2, '0');
         const fallbackImg = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80';
         const photoSrc = c.image_url || fallbackImg;
-        const candColor = palette[idx % palette.length] || '#1E40AF';
+        const candColor = palette[idx % palette.length] || '#007979';
 
         return `
           <div class="white-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
             isLeader 
-              ? 'border-blue-800 ring-2 ring-blue-800/20 shadow-md bg-white' 
+              ? 'border-[#007979] ring-2 ring-[#007979]/20 shadow-md bg-white' 
               : 'border-slate-200 bg-white shadow-xs'
           }">
             

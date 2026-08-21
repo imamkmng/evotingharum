@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const content = document.getElementById(`tab-content-${tabKey}`);
       
       if (tabKey === activeKey) {
-        btn.className = 'admin-tab-btn active px-3.5 py-2 rounded-xl bg-blue-800 text-white flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold shadow-xs cursor-pointer';
+        btn.className = 'admin-tab-btn active px-3.5 py-2 rounded-xl bg-[#007979] text-white flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold shadow-xs cursor-pointer';
         content.classList.remove('hidden');
       } else {
         btn.className = 'admin-tab-btn px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold cursor-pointer';
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Render per-category breakdown
       const container = document.getElementById('adm-overview-results');
       const categories = [
-        { key: 'osis', title: 'Ketua & Wakil Ketua OSIS', color: 'blue', bgBadge: 'bg-blue-800', barColor: 'bg-blue-800' },
+        { key: 'osis', title: 'Ketua & Wakil Ketua OSIS', color: 'teal', bgBadge: 'bg-[#007979]', barColor: 'bg-[#007979]' },
         { key: 'ambalan_putra', title: 'Pradana Ambalan Putra', color: 'amber', bgBadge: 'bg-amber-600', barColor: 'bg-amber-600' },
         { key: 'ambalan_putri', title: 'Pradana Ambalan Putri', color: 'rose', bgBadge: 'bg-rose-600', barColor: 'bg-rose-600' },
       ];
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       </div>
                       <div class="flex items-center space-x-2 font-mono font-bold">
                         <span class="text-slate-900">${count} suara</span>
-                        <span class="text-blue-800 text-xs">(${pct}%)</span>
+                        <span class="text-[#007979] text-xs">(${pct}%)</span>
                       </div>
                     </div>
                     <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-heading ${
               isGuru 
                 ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                : 'bg-blue-50 text-blue-800 border border-blue-200'
+                : 'bg-teal-50 text-[#007979] border border-teal-200'
             }">
               ${v.role}
             </span>
@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
       removePhoto();
       candUrlInputBox.classList.add('hidden');
       formTitle.innerHTML = `
-        <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+        <i data-lucide="user-check" class="w-4 h-4 text-[#007979]"></i>
         <span>Tambah Kandidat Baru</span>
       `;
       btnResetForm.classList.add('hidden');
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCandidatesManagerList() {
     const container = document.getElementById('adm-candidates-list-container');
     const categories = [
-      { key: 'osis', title: 'Kandidat Ketua OSIS', color: 'blue' },
+      { key: 'osis', title: 'Kandidat Ketua OSIS', color: 'teal' },
       { key: 'ambalan_putra', title: 'Kandidat Pradana Ambalan Putra', color: 'amber' },
       { key: 'ambalan_putri', title: 'Kandidat Pradana Ambalan Putri', color: 'rose' },
     ];
@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isOsis = cat.key === 'osis';
       const isPa = cat.key === 'ambalan_putra';
-      const badgeBg = isOsis ? 'bg-blue-800' : (isPa ? 'bg-amber-600' : 'bg-rose-600');
+      const badgeBg = isOsis ? 'bg-[#007979]' : (isPa ? 'bg-amber-600' : 'bg-rose-600');
 
       return `
         <div class="white-card rounded-2xl p-5 border border-slate-200 space-y-4 shadow-xs">
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
                   <span class="text-slate-600 font-mono">Suara: <strong class="text-slate-900">${c.vote_count || 0}</strong></span>
                   <div class="flex items-center space-x-1.5">
-                    <button class="btn-edit-cand px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-800 hover:text-white text-[11px] font-bold transition-all flex items-center space-x-1 font-heading cursor-pointer" data-id="${c.id}">
+                    <button class="btn-edit-cand px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white text-[11px] font-bold transition-all flex items-center space-x-1 font-heading cursor-pointer" data-id="${c.id}">
                       <i data-lucide="edit-3" class="w-3 h-3"></i>
                       <span>Edit</span>
                     </button>
@@ -947,8 +947,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('fullscreenchange', () => {
       const isFull = !!document.fullscreenElement;
       btnFullscreen.innerHTML = isFull
-        ? `<i data-lucide="minimize" class="w-3.5 h-3.5 text-blue-800"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
-        : `<i data-lucide="maximize" class="w-3.5 h-3.5 text-blue-800"></i><span class="hidden sm:inline">Layar Penuh</span>`;
+        ? `<i data-lucide="minimize" class="w-3.5 h-3.5 text-[#007979]"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
+        : `<i data-lucide="maximize" class="w-3.5 h-3.5 text-[#007979]"></i><span class="hidden sm:inline">Layar Penuh</span>`;
       if (window.lucide) window.lucide.createIcons();
     });
   }

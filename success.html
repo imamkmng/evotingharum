@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="./src/style.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between relative selection:bg-blue-800 selection:text-amber-300 font-sans">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-[#007979] selection:text-amber-300 font-sans">
 
   <!-- Confetti Canvas overlay -->
   <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
@@ -50,12 +50,12 @@
       <div class="flex items-center space-x-2 sm:space-x-3">
         <!-- Fullscreen Button -->
         <button id="btn-fullscreen-toggle" type="button" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all shadow-xs cursor-pointer" title="Mode Layar Penuh">
-          <i data-lucide="maximize" class="w-4 h-4 text-blue-800"></i>
+          <i data-lucide="maximize" class="w-4 h-4 text-[#007979]"></i>
           <span class="hidden sm:inline">Layar Penuh</span>
         </button>
 
-        <a href="/index.html" class="text-xs sm:text-sm text-slate-600 hover:text-blue-800 font-bold font-heading flex items-center space-x-1.5 transition-colors">
-          <i data-lucide="home" class="w-4 h-4 text-blue-800"></i>
+        <a href="/index.html" class="text-xs sm:text-sm text-slate-600 hover:text-[#007979] font-bold font-heading flex items-center space-x-1.5 transition-colors">
+          <i data-lucide="home" class="w-4 h-4 text-[#007979]"></i>
           <span>Halaman Utama</span>
         </a>
       </div>
@@ -83,8 +83,8 @@
     <!-- Digital Receipt Card (White Clean) -->
     <div class="w-full white-card rounded-2xl p-5 sm:p-7 border border-slate-200 shadow-xl mt-8 text-left relative overflow-hidden">
       
-      <!-- Top Decorative Ribbon (Biru Demokrasi & Kuning Semangat) -->
-      <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-600 via-blue-800 to-amber-400"></div>
+      <!-- Top Decorative Ribbon (Hijau Toska & Kuning Semangat) -->
+      <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-600 via-[#007979] to-amber-400"></div>
 
       <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <div>
@@ -136,22 +136,22 @@
     </div>
 
     <!-- Auto-Redirect Countdown Card (10 Detik Otomatis Kembali ke Login) -->
-    <div class="w-full mt-8 p-4 sm:p-5 rounded-2xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-left shadow-sm">
+    <div class="w-full mt-8 p-4 sm:p-5 rounded-2xl bg-teal-50/80 border border-teal-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-left shadow-sm">
       <div class="flex items-center space-x-3.5 w-full sm:w-auto">
         <div class="relative w-12 h-12 flex items-center justify-center flex-shrink-0">
           <svg class="w-12 h-12 transform -rotate-90">
-            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" class="text-blue-200" fill="transparent" />
-            <circle id="countdown-circle" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" class="text-blue-800 transition-all duration-1000" fill="transparent" stroke-dasharray="125.6" stroke-dashoffset="0" />
+            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" class="text-teal-200" fill="transparent" />
+            <circle id="countdown-circle" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" class="text-[#007979] transition-all duration-1000" fill="transparent" stroke-dasharray="125.6" stroke-dashoffset="0" />
           </svg>
-          <span id="countdown-number" class="absolute font-extrabold text-base text-blue-800 font-heading">10</span>
+          <span id="countdown-number" class="absolute font-extrabold text-base text-[#007979] font-heading">10</span>
         </div>
         <div>
           <p class="text-xs sm:text-sm font-bold text-slate-900 font-heading">Kembali ke Halaman Login</p>
-          <p class="text-[11px] text-slate-600">Mengalihkan otomatis dalam <span id="countdown-seconds" class="text-blue-800 font-bold font-mono">10</span> detik untuk keamanan sesi pemilih berikutnya.</p>
+          <p class="text-[11px] text-slate-600">Mengalihkan otomatis dalam <span id="countdown-seconds" class="text-[#007979] font-bold font-mono">10</span> detik untuk keamanan sesi pemilih berikutnya.</p>
         </div>
       </div>
       
-      <a href="/index.html" id="btn-manual-exit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer font-heading">
+      <a href="/index.html" id="btn-manual-exit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#007979] hover:bg-[#005f5f] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer font-heading">
         <span>Selesai & Keluar</span>
         <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-amber-400"></i>
       </a>

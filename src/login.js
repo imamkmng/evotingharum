@@ -35,13 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (role === 'siswa') {
-      if (tabSiswa) tabSiswa.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-blue-800 text-white shadow-sm font-heading cursor-pointer';
+      if (tabSiswa) tabSiswa.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-[#007979] text-white shadow-sm font-heading cursor-pointer';
       if (tabGuru) tabGuru.className = 'flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 font-heading cursor-pointer';
       if (inputLabel) inputLabel.textContent = 'Nomor Induk Siswa Nasional (NISN)';
       if (idInput) idInput.placeholder = 'Masukkan Nomor NISN';
       if (inputHint) {
         inputHint.innerHTML = `
-          <svg class="w-3.5 h-3.5 text-blue-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="16" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2"></line></svg>
+          <svg class="w-3.5 h-3.5 text-[#007979] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="16" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="8" x2="12.01" y2="8" stroke-width="2"></line></svg>
           <span>Siswa memasukkan NISN yang terdaftar di Daftar Pemilih Tetap (DPT).</span>
         `;
       }
@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
       alertBox.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
       iconSvg = `<svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
     } else if (type === 'loading') {
-      alertBox.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
-      iconSvg = `<div class="w-4 h-4 mt-0.5 border-2 border-blue-800/30 border-t-blue-800 rounded-full animate-spin flex-shrink-0"></div>`;
+      alertBox.classList.add('bg-teal-50', 'border-teal-200', 'text-[#007979]');
+      iconSvg = `<div class="w-4 h-4 mt-0.5 border-2 border-[#007979]/30 border-t-[#007979] rounded-full animate-spin flex-shrink-0"></div>`;
     } else if (type === 'success') {
       alertBox.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
       iconSvg = `<svg class="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (idInput) idInput.disabled = false;
     if (btnLogin) {
       btnLogin.disabled = false;
-      btnLogin.className = 'w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-blue-800 hover:bg-blue-900 active:scale-[0.99] transition-all shadow-md shadow-blue-800/20 flex items-center justify-center space-x-2 cursor-pointer font-heading';
+      btnLogin.className = 'w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-[#007979] hover:bg-[#005f5f] active:scale-[0.99] transition-all shadow-md shadow-[#007979]/20 flex items-center justify-center space-x-2 cursor-pointer font-heading';
       btnLogin.innerHTML = `
         <span>Verifikasi & Masuk Bilik Suara</span>
         <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" stroke-width="2"></line><polyline points="12 5 19 12 12 19" stroke-width="2"></polyline></svg>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (idInput) idInput.disabled = true;
       if (btnLogin) {
         btnLogin.disabled = true;
-        btnLogin.className = 'w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-blue-900 transition-all shadow-md flex items-center justify-center space-x-2 cursor-wait font-heading opacity-90';
+        btnLogin.className = 'w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-[#005f5f] transition-all shadow-md flex items-center justify-center space-x-2 cursor-wait font-heading opacity-90';
         btnLogin.innerHTML = `
           <div class="w-5 h-5 border-2 border-white/30 border-t-amber-400 rounded-full animate-spin"></div>
           <span class="text-amber-300">Memeriksa Data Pemilih...</span>
@@ -191,8 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('fullscreenchange', () => {
       const isFull = !!document.fullscreenElement;
       btnFullscreen.innerHTML = isFull
-        ? `<i data-lucide="minimize" class="w-4 h-4 text-blue-800"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
-        : `<i data-lucide="maximize" class="w-4 h-4 text-blue-800"></i><span class="hidden sm:inline">Layar Penuh</span>`;
+        ? `<i data-lucide="minimize" class="w-4 h-4 text-[#007979]"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
+        : `<i data-lucide="maximize" class="w-4 h-4 text-[#007979]"></i><span class="hidden sm:inline">Layar Penuh</span>`;
       if (window.lucide) window.lucide.createIcons();
     });
   }

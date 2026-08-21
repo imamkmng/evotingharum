@@ -10,26 +10,37 @@
   <link rel="stylesheet" href="./src/style.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen relative selection:bg-blue-800 selection:text-amber-300 font-sans">
+<body class="bg-slate-50 text-slate-900 min-h-screen relative selection:bg-[#007979] selection:text-amber-300 font-sans">
 
-  <!-- Subtle Background Ambience -->
+  <!-- Full-Size Background School Architecture & Ambience -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-    <div class="absolute top-0 left-1/3 w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[140px]"></div>
-    <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-amber-100/50 rounded-full blur-[140px]"></div>
+    <!-- Full-Width Building Graphic Layer -->
+    <div class="absolute inset-x-0 top-0 flex justify-center">
+      <img 
+        id="school-bg-image"
+        src="/bg-school.png" 
+        alt="Kampus Harum" 
+        class="w-full max-w-none h-[420px] sm:h-[500px] md:h-[580px] lg:h-[640px] object-cover sm:object-cover object-top opacity-30 sm:opacity-35 filter drop-shadow-sm select-none"
+      />
+    </div>
+    
+    <!-- Professional Layered Gradients -->
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-50/10 via-slate-50/70 to-[#F8FAFC]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgba(248,250,252,0.5)_50%,#F8FAFC_95%)]"></div>
+
+    <div class="absolute top-0 right-10 w-[500px] h-[500px] bg-teal-100/35 rounded-full blur-[140px]"></div>
   </div>
 
-  <!-- Admin Login Overlay Gate (Shown if not authenticated) -->
-  <div id="admin-auth-gate" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4">
+  <!-- Admin Login Modal Gate (Modern Light Aesthetic) -->
+  <div id="admin-login-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4">
     <div class="white-card max-w-md w-full rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-2xl text-center">
-      
-      <div class="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-200 p-2 mx-auto mb-4 flex items-center justify-center text-blue-800 shadow-xs">
-        <i data-lucide="shield-lock" class="w-7 h-7"></i>
+      <div class="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-200 p-2 mx-auto mb-4 flex items-center justify-center text-[#007979] shadow-xs">
+        <i data-lucide="shield-check" class="w-7 h-7"></i>
       </div>
+      <h2 class="text-xl font-extrabold text-slate-900 font-heading">Portal Administrator</h2>
+      <p class="text-xs text-slate-600 mt-1 mb-6">Masuk untuk mengelola DPT pemilih, kandidat ketua, dan pengaturan sistem.</p>
 
-      <h2 class="text-xl font-extrabold text-slate-900 font-heading">Autentikasi Administrator</h2>
-      <p class="text-xs text-slate-600 mt-1 mb-6">Masukkan kata sandi untuk mengakses panel manajemen pemilu.</p>
-
-      <form id="form-admin-login" class="space-y-4 text-left">
+      <form id="admin-login-form" class="space-y-4 text-left">
         <div>
           <label for="admin-password" class="block text-xs font-bold text-slate-700 mb-1.5 font-heading">Kata Sandi Admin</label>
           <div class="relative">
@@ -38,7 +49,7 @@
               id="admin-password" 
               placeholder="Masukkan password admin..."
               required
-              class="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 shadow-xs"
+              class="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#007979] shadow-xs"
             />
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <i data-lucide="key" class="w-4 h-4"></i>
@@ -53,7 +64,7 @@
 
         <button 
           type="submit"
-          class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-blue-800 hover:bg-blue-900 transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer font-heading"
+          class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-[#007979] hover:bg-[#005f5f] transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer font-heading"
         >
           <i data-lucide="unlock" class="w-4 h-4 text-amber-400"></i>
           <span>Buka Panel Admin</span>
@@ -61,12 +72,11 @@
       </form>
 
       <div class="mt-6 pt-4 border-t border-slate-200">
-        <a href="/index.html" class="text-xs text-slate-500 hover:text-blue-800 font-semibold flex items-center justify-center space-x-1 transition-colors">
+        <a href="/index.html" class="text-xs text-slate-500 hover:text-[#007979] font-semibold flex items-center justify-center space-x-1 transition-colors">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-          <span>Kembali ke Beranda Pemilu</span>
+          <span>Kembali ke Halaman Utama</span>
         </a>
       </div>
-
     </div>
   </div>
 
@@ -80,7 +90,7 @@
         <!-- Left: Brand & DB Status -->
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2.5">
-            <div class="w-8 h-8 rounded-lg bg-blue-800 flex items-center justify-center shadow-sm">
+            <div class="w-8 h-8 rounded-lg bg-[#007979] flex items-center justify-center shadow-sm">
               <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
             </div>
             <div>
@@ -100,11 +110,11 @@
         <div class="flex items-center space-x-2 sm:space-x-3">
           <!-- Fullscreen Button -->
           <button id="btn-fullscreen-toggle" type="button" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer" title="Mode Layar Penuh">
-            <i data-lucide="maximize" class="w-3.5 h-3.5 text-blue-800"></i>
+            <i data-lucide="maximize" class="w-3.5 h-3.5 text-[#007979]"></i>
             <span class="hidden sm:inline">Layar Penuh</span>
           </button>
 
-          <a href="/realcount.html" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-800 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs">
+          <a href="/realcount.html" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs">
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-500"></i>
             <span class="hidden sm:inline">Buka Real Count</span>
           </a>
@@ -122,7 +132,7 @@
     <div class="border-b border-slate-200 bg-white/95 sticky top-16 z-20 backdrop-blur-md shadow-xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto py-2.5 text-xs sm:text-sm font-bold font-heading">
-          <button id="tab-btn-overview" class="admin-tab-btn active px-3.5 py-2 rounded-xl bg-blue-800 text-white flex items-center space-x-2 transition-all flex-shrink-0 cursor-pointer">
+          <button id="tab-btn-overview" class="admin-tab-btn active px-3.5 py-2 rounded-xl bg-[#007979] text-white flex items-center space-x-2 transition-all flex-shrink-0 cursor-pointer">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
             <span>Ringkasan Hasil</span>
           </button>
@@ -173,7 +183,7 @@
 
           <div class="white-card rounded-2xl p-4 border border-slate-200 shadow-xs">
             <span class="text-xs font-bold text-slate-500 block mb-1 font-heading">Total Kandidat</span>
-            <div id="adm-total-candidates" class="text-2xl font-black text-blue-800 font-heading">0</div>
+            <div id="adm-total-candidates" class="text-2xl font-black text-[#007979] font-heading">0</div>
             <p class="text-[11px] text-slate-500 mt-1 font-sans">OSIS & Ambalan</p>
           </div>
         </div>
@@ -189,7 +199,7 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <a href="/realcount.html" target="_blank" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-800 hover:bg-blue-900 text-white shadow-xs transition-all flex items-center space-x-1.5 font-heading">
+            <a href="/realcount.html" target="_blank" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#007979] hover:bg-[#005f5f] text-white shadow-xs transition-all flex items-center space-x-1.5 font-heading">
               <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-amber-400"></i>
               <span>Layar Real Count</span>
             </a>
@@ -223,26 +233,26 @@
             <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
               <div>
                 <h3 class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center space-x-2 font-heading">
-                  <i data-lucide="file-up" class="w-4 h-4 text-blue-800"></i>
+                  <i data-lucide="file-up" class="w-4 h-4 text-[#007979]"></i>
                   <span>Import DPT Massal (File CSV)</span>
                 </h3>
                 <p class="text-xs text-slate-500 font-sans">Upload daftar ribuan siswa & guru sekaligus dalam hitungan detik.</p>
               </div>
 
               <button id="btn-download-csv-template" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold flex items-center space-x-1.5 transition-all font-heading cursor-pointer">
-                <i data-lucide="download" class="w-3.5 h-3.5 text-blue-800"></i>
+                <i data-lucide="download" class="w-3.5 h-3.5 text-[#007979]"></i>
                 <span>Download Template CSV</span>
               </button>
             </div>
 
             <!-- CSV Dropzone -->
-            <div class="border-2 border-dashed border-slate-300 hover:border-blue-800 rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-50 relative">
+            <div class="border-2 border-dashed border-slate-300 hover:border-[#007979] rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-50 relative">
               <input type="file" id="csv-file-input" accept=".csv,text/csv" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-              <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center mx-auto mb-2">
+              <div class="w-10 h-10 rounded-full bg-teal-100 text-[#007979] flex items-center justify-center mx-auto mb-2">
                 <i data-lucide="upload-cloud" class="w-5 h-5"></i>
               </div>
               <p class="text-xs sm:text-sm font-bold text-slate-900 font-heading">Klik atau Tarik File CSV ke sini</p>
-              <p class="text-[11px] text-slate-500 mt-1 font-sans">Format kolom: <code class="text-blue-800 bg-white border border-slate-200 px-1 py-0.5 rounded font-mono font-bold">id_number,name,role</code> (role: siswa / guru)</p>
+              <p class="text-[11px] text-slate-500 mt-1 font-sans">Format kolom: <code class="text-[#007979] bg-white border border-slate-200 px-1 py-0.5 rounded font-mono font-bold">id_number,name,role</code> (role: siswa / guru)</p>
             </div>
 
             <!-- CSV Upload Preview status -->
@@ -265,7 +275,7 @@
             <form id="form-add-single-voter" class="space-y-3">
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1 font-heading">Peran / Kategori</label>
-                <select id="single-voter-role" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-1 focus:ring-blue-800">
+                <select id="single-voter-role" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:ring-1 focus:ring-[#007979]">
                   <option value="siswa">Siswa (NISN)</option>
                   <option value="guru">Guru / Pembina (NIP/NIY)</option>
                 </select>
@@ -273,15 +283,15 @@
 
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1 font-heading">NISN / NIP / NIY</label>
-                <input type="text" id="single-voter-id" required placeholder="Contoh: 0081234509" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-blue-800" />
+                <input type="text" id="single-voter-id" required placeholder="Contoh: 0081234509" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-[#007979]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1 font-heading">Nama Lengkap</label>
-                <input type="text" id="single-voter-name" required placeholder="Contoh: Rizky Kurniawan" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-blue-800" />
+                <input type="text" id="single-voter-name" required placeholder="Contoh: Rizky Kurniawan" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-[#007979]" />
               </div>
 
-              <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2 font-heading">
+              <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-[#007979] hover:bg-[#005f5f] text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2 font-heading">
                 <i data-lucide="plus" class="w-3.5 h-3.5 text-amber-400"></i>
                 <span>Simpan Pemilih</span>
               </button>
@@ -297,7 +307,7 @@
           <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50">
             <div class="relative w-full sm:w-72">
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-              <input type="text" id="voters-search-input" placeholder="Cari NISN, NIP, atau nama..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-blue-800" />
+              <input type="text" id="voters-search-input" placeholder="Cari NISN, NIP, atau nama..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-1 focus:ring-[#007979]" />
             </div>
 
             <div class="flex items-center space-x-2 w-full sm:w-auto">
@@ -350,7 +360,7 @@
         <div class="white-card rounded-2xl p-5 sm:p-6 border border-slate-200 space-y-5 shadow-xs">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center flex-shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 text-[#007979] flex items-center justify-center flex-shrink-0">
                 <i data-lucide="sliders" class="w-5 h-5"></i>
               </div>
               <div>
@@ -359,8 +369,8 @@
               </div>
             </div>
 
-            <div id="active-scope-badge" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 border border-blue-200 text-blue-800 font-heading self-start sm:self-auto">
-              <span class="w-2 h-2 rounded-full bg-blue-800 animate-pulse"></span>
+            <div id="active-scope-badge" class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-50 border border-teal-200 text-[#007979] font-heading self-start sm:self-auto">
+              <span class="w-2 h-2 rounded-full bg-[#007979] animate-pulse"></span>
               <span id="active-scope-text">Semua Kategori (OSIS + Ambalan)</span>
             </div>
           </div>
@@ -368,24 +378,24 @@
           <form id="form-voting-scope" class="space-y-4">
             <!-- Preset Scope Radios -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all scope-preset-card" data-preset="all">
-                <input type="radio" name="scope-preset" value="all" checked class="w-4 h-4 text-blue-800 focus:ring-blue-800" />
+              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 transition-all scope-preset-card" data-preset="all">
+                <input type="radio" name="scope-preset" value="all" checked class="w-4 h-4 text-[#007979] focus:ring-[#007979]" />
                 <div class="ml-3">
                   <span class="text-xs font-bold text-slate-900 block font-heading">Semua Kategori</span>
                   <span class="text-[11px] text-slate-500">OSIS + Ambalan Pa & Pi</span>
                 </div>
               </label>
 
-              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all scope-preset-card" data-preset="osis_only">
-                <input type="radio" name="scope-preset" value="osis_only" class="w-4 h-4 text-blue-800 focus:ring-blue-800" />
+              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 transition-all scope-preset-card" data-preset="osis_only">
+                <input type="radio" name="scope-preset" value="osis_only" class="w-4 h-4 text-[#007979] focus:ring-[#007979]" />
                 <div class="ml-3">
                   <span class="text-xs font-bold text-slate-900 block font-heading">Hanya Ketua OSIS</span>
                   <span class="text-[11px] text-slate-500">1 Kategori saja</span>
                 </div>
               </label>
 
-              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all scope-preset-card" data-preset="ambalan_only">
-                <input type="radio" name="scope-preset" value="ambalan_only" class="w-4 h-4 text-blue-800 focus:ring-blue-800" />
+              <label class="cursor-pointer flex items-center p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 transition-all scope-preset-card" data-preset="ambalan_only">
+                <input type="radio" name="scope-preset" value="ambalan_only" class="w-4 h-4 text-[#007979] focus:ring-[#007979]" />
                 <div class="ml-3">
                   <span class="text-xs font-bold text-slate-900 block font-heading">Hanya Ambalan</span>
                   <span class="text-[11px] text-slate-500">Pradana Putra & Putri</span>
@@ -398,8 +408,8 @@
               <span class="text-xs font-bold text-slate-700 block mb-1 font-heading">Pilihan Kategori Terpilih:</span>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <label class="flex items-center space-x-2 text-xs text-slate-800 cursor-pointer">
-                  <input type="checkbox" id="chk-scope-osis" value="osis" checked class="w-4 h-4 rounded text-blue-800 focus:ring-blue-800" />
-                  <span class="font-bold">🔵 Calon Ketua OSIS</span>
+                  <input type="checkbox" id="chk-scope-osis" value="osis" checked class="w-4 h-4 rounded text-[#007979] focus:ring-[#007979]" />
+                  <span class="font-bold">🟢 Calon Ketua OSIS</span>
                 </label>
                 <label class="flex items-center space-x-2 text-xs text-slate-800 cursor-pointer">
                   <input type="checkbox" id="chk-scope-pa" value="ambalan_putra" checked class="w-4 h-4 rounded text-amber-600 focus:ring-amber-600" />
@@ -414,7 +424,7 @@
 
             <div class="flex items-center justify-between pt-2">
               <span class="text-[11px] text-slate-500 font-sans">Perubahan akan langsung diterapkan ke bilik suara.</span>
-              <button type="submit" id="btn-save-scope" class="py-2.5 px-5 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer font-heading">
+              <button type="submit" id="btn-save-scope" class="py-2.5 px-5 rounded-xl bg-[#007979] hover:bg-[#005f5f] text-white font-bold text-xs shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer font-heading">
                 <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400"></i>
                 <span>Simpan Kategori Aktif</span>
               </button>
@@ -428,7 +438,7 @@
           <div class="white-card rounded-2xl p-5 border border-slate-200 h-fit shadow-xs">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
               <h3 id="cand-form-title" class="text-sm font-extrabold text-slate-900 flex items-center space-x-2 font-heading">
-                <i data-lucide="user-check" class="w-4 h-4 text-blue-800"></i>
+                <i data-lucide="user-check" class="w-4 h-4 text-[#007979]"></i>
                 <span>Tambah Kandidat Baru</span>
               </h3>
               <button id="btn-cand-form-reset" type="button" class="text-[11px] text-slate-500 hover:text-slate-900 hidden font-semibold">Reset Form</button>
@@ -466,7 +476,7 @@
               <div>
                 <label class="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center justify-between font-heading">
                   <span>Foto Kandidat (PNG / JPG)</span>
-                  <span class="text-[10px] text-blue-800 font-bold">Rekomendasi Foto Portrait</span>
+                  <span class="text-[10px] text-[#007979] font-bold">Rekomendasi Foto Portrait</span>
                 </label>
 
                 <!-- Photo Preview Box (Hidden until image selected) -->
@@ -475,7 +485,7 @@
                     <img id="cand-photo-preview-img" src="" alt="Preview Foto" class="h-full w-full object-contain" />
                   </div>
                   <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                    <button type="button" id="btn-change-photo" class="px-2.5 py-1.5 rounded-lg bg-blue-800 hover:bg-blue-900 text-white text-[11px] font-bold flex items-center space-x-1 font-heading cursor-pointer">
+                    <button type="button" id="btn-change-photo" class="px-2.5 py-1.5 rounded-lg bg-[#007979] hover:bg-[#005f5f] text-white text-[11px] font-bold flex items-center space-x-1 font-heading cursor-pointer">
                       <i data-lucide="refresh-cw" class="w-3 h-3"></i>
                       <span>Ganti</span>
                     </button>
@@ -487,9 +497,9 @@
                 </div>
 
                 <!-- Dropzone / File Picker Area -->
-                <div id="cand-photo-dropzone" class="border-2 border-dashed border-slate-300 hover:border-blue-800 rounded-xl p-4 text-center cursor-pointer transition-all bg-slate-50 relative">
+                <div id="cand-photo-dropzone" class="border-2 border-dashed border-slate-300 hover:border-[#007979] rounded-xl p-4 text-center cursor-pointer transition-all bg-slate-50 relative">
                   <input type="file" id="cand-file-input" accept="image/png,image/jpeg,image/jpg,image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-                  <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center mx-auto mb-1.5 pointer-events-none">
+                  <div class="w-8 h-8 rounded-lg bg-teal-100 text-[#007979] flex items-center justify-center mx-auto mb-1.5 pointer-events-none">
                     <i data-lucide="image-plus" class="w-4 h-4"></i>
                   </div>
                   <p class="text-xs font-bold text-slate-900 pointer-events-none font-heading">Pilih Foto PNG / JPG</p>
@@ -500,7 +510,7 @@
                 <input type="hidden" id="cand-image-data" value="" />
                 
                 <div class="mt-2 text-right">
-                  <button type="button" id="btn-toggle-url-input" class="text-[10px] text-slate-500 hover:text-blue-800 font-semibold underline cursor-pointer">
+                  <button type="button" id="btn-toggle-url-input" class="text-[10px] text-slate-500 hover:text-[#007979] font-semibold underline cursor-pointer">
                     Atau gunakan Link URL Foto Eksternal
                   </button>
                 </div>
@@ -520,7 +530,7 @@
                 <textarea id="cand-mission" rows="3" required placeholder="1. Misi pertama&#10;2. Misi kedua..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400"></textarea>
               </div>
 
-              <button type="submit" id="btn-save-candidate" class="w-full py-2.5 px-4 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer font-heading">
+              <button type="submit" id="btn-save-candidate" class="w-full py-2.5 px-4 rounded-xl bg-[#007979] hover:bg-[#005f5f] text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer font-heading">
                 <i data-lucide="save" class="w-3.5 h-3.5 text-amber-400"></i>
                 <span>Simpan Kandidat</span>
               </button>
@@ -546,7 +556,7 @@
         <div class="white-card rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center flex-shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 text-[#007979] flex items-center justify-center flex-shrink-0">
                 <i data-lucide="image" class="w-5 h-5"></i>
               </div>
               <div>
@@ -561,9 +571,9 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <!-- Dropzone -->
-            <div id="bg-school-dropzone" class="border-2 border-dashed border-slate-300 hover:border-blue-800 rounded-xl p-5 text-center cursor-pointer transition-all bg-slate-50 relative">
+            <div id="bg-school-dropzone" class="border-2 border-dashed border-slate-300 hover:border-[#007979] rounded-xl p-5 text-center cursor-pointer transition-all bg-slate-50 relative">
               <input type="file" id="bg-school-file-input" accept="image/png,image/jpeg,image/jpg,image/webp" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-              <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center mx-auto mb-2 pointer-events-none">
+              <div class="w-9 h-9 rounded-lg bg-teal-100 text-[#007979] flex items-center justify-center mx-auto mb-2 pointer-events-none">
                 <i data-lucide="upload-cloud" class="w-5 h-5"></i>
               </div>
               <p class="text-xs font-bold text-slate-900 pointer-events-none font-heading">Pilih / Drag File Gambar Asli (PNG/JPG)</p>
@@ -598,7 +608,7 @@
                   type="url" 
                   id="cfg-supabase-url" 
                   placeholder="https://xyzcompany.supabase.co" 
-                  class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-mono focus:ring-1 focus:ring-blue-800"
+                  class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-mono focus:ring-1 focus:ring-[#007979]"
                 />
               </div>
 
@@ -608,7 +618,7 @@
                   type="password" 
                   id="cfg-supabase-key" 
                   placeholder="eyJhbGciOiJIUzI1NiIsIn..." 
-                  class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-mono focus:ring-1 focus:ring-blue-800"
+                  class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 font-mono focus:ring-1 focus:ring-[#007979]"
                 />
               </div>
 
@@ -622,11 +632,11 @@
 
             <div class="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
               <p class="font-bold text-slate-900 flex items-center space-x-1.5 font-heading">
-                <i data-lucide="help-circle" class="w-4 h-4 text-blue-800"></i>
+                <i data-lucide="help-circle" class="w-4 h-4 text-[#007979]"></i>
                 <span>Cara Mendapatkan URL & Key:</span>
               </p>
               <ol class="list-decimal list-inside space-y-1 text-[11px] text-slate-600 font-sans">
-                <li>Buka dashboard di <a href="https://supabase.com/dashboard" target="_blank" class="text-blue-800 underline font-semibold">supabase.com</a></li>
+                <li>Buka dashboard di <a href="https://supabase.com/dashboard" target="_blank" class="text-[#007979] underline font-semibold">supabase.com</a></li>
                 <li>Masuk ke menu <strong>Project Settings > API</strong></li>
                 <li>Salin <strong>Project URL</strong> dan <strong>anon public API key</strong></li>
               </ol>
@@ -640,16 +650,16 @@
             <div>
               <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
                 <h3 class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center space-x-2 font-heading">
-                  <i data-lucide="terminal" class="w-4 h-4 text-blue-800"></i>
+                  <i data-lucide="terminal" class="w-4 h-4 text-[#007979]"></i>
                   <span>Setup Tabel Supabase (SQL Script)</span>
                 </h3>
-                <button id="btn-copy-sql" class="px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-800 hover:text-white text-xs font-bold flex items-center space-x-1 transition-all font-heading cursor-pointer">
+                <button id="btn-copy-sql" class="px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white text-xs font-bold flex items-center space-x-1 transition-all font-heading cursor-pointer">
                   <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                   <span id="copy-sql-text">Salin Script SQL</span>
                 </button>
               </div>
               <p class="text-xs text-slate-600 mb-3 font-sans">
-                Buka menu <strong>SQL Editor</strong> di dashboard Supabase Anda, buat New Query, lalu paste script dari file <code class="text-blue-800 font-mono font-bold">supabase-schema.sql</code>.
+                Buka menu <strong>SQL Editor</strong> di dashboard Supabase Anda, buat New Query, lalu paste script dari file <code class="text-[#007979] font-mono font-bold">supabase-schema.sql</code>.
               </p>
             </div>
 
@@ -678,7 +688,7 @@
                 </li>
                 <li class="flex items-start space-x-2">
                   <span class="font-bold text-amber-600 font-mono">5.</span>
-                  <span>(Opsional) Tambahkan Environment Variables di Cloudflare: <code class="text-blue-800 font-mono font-bold">VITE_SUPABASE_URL</code> dan <code class="text-blue-800 font-mono font-bold">VITE_SUPABASE_ANON_KEY</code>.</span>
+                  <span>(Opsional) Tambahkan Environment Variables di Cloudflare: <code class="text-[#007979] font-mono font-bold">VITE_SUPABASE_URL</code> dan <code class="text-[#007979] font-mono font-bold">VITE_SUPABASE_ANON_KEY</code>.</span>
                 </li>
               </ul>
             </div>

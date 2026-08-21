@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('fullscreenchange', () => {
       const isFull = !!document.fullscreenElement;
       btnFullscreen.innerHTML = isFull
-        ? `<i data-lucide="minimize" class="w-4 h-4 text-blue-800"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
-        : `<i data-lucide="maximize" class="w-4 h-4 text-blue-800"></i><span class="hidden sm:inline">Layar Penuh</span>`;
+        ? `<i data-lucide="minimize" class="w-4 h-4 text-[#007979]"></i><span class="hidden sm:inline">Keluar Layar Penuh</span>`
+        : `<i data-lucide="maximize" class="w-4 h-4 text-[#007979]"></i><span class="hidden sm:inline">Layar Penuh</span>`;
       if (window.lucide) window.lucide.createIcons();
     });
   }

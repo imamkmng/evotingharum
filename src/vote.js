@@ -142,10 +142,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Color scheme based on position
       const isOsis = positionKey === 'osis';
       const isPa = positionKey === 'ambalan_putra';
-      const accentBg = isOsis ? 'bg-blue-800' : (isPa ? 'bg-amber-600' : 'bg-rose-700');
-      const accentText = isOsis ? 'text-blue-800' : (isPa ? 'text-amber-700' : 'text-rose-700');
-      const accentBorder = isOsis ? 'border-blue-800' : (isPa ? 'border-amber-600' : 'border-rose-700');
-      const accentRing = isOsis ? 'ring-blue-800/40' : (isPa ? 'ring-amber-600/40' : 'ring-rose-700/40');
+      const accentBg = isOsis ? 'bg-[#007979]' : (isPa ? 'bg-amber-600' : 'bg-rose-700');
+      const accentText = isOsis ? 'text-[#007979]' : (isPa ? 'text-amber-700' : 'text-rose-700');
+      const accentBorder = isOsis ? 'border-[#007979]' : (isPa ? 'border-amber-600' : 'border-rose-700');
+      const accentRing = isOsis ? 'ring-[#007979]/40' : (isPa ? 'ring-amber-600/40' : 'ring-rose-700/40');
 
       return `
         <div 
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             <!-- Hover Zoom Pill Button -->
             <div class="absolute top-12 right-3 z-10 opacity-0 group-hover/photo:opacity-100 transition-opacity">
-              <button type="button" class="btn-preview-photo px-2.5 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 text-slate-900 text-[11px] font-bold font-heading flex items-center space-x-1 shadow-md hover:bg-blue-800 hover:text-white transition-all cursor-pointer" data-id="${candidate.id}">
+              <button type="button" class="btn-preview-photo px-2.5 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 text-slate-900 text-[11px] font-bold font-heading flex items-center space-x-1 shadow-md hover:bg-[#007979] hover:text-white transition-all cursor-pointer" data-id="${candidate.id}">
                 <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i>
                 <span>Lihat Foto</span>
               </button>
@@ -337,10 +337,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         count++;
         const num = String(selectedVotes.osis.candidate_number).padStart(2, '0');
         const shortName = selectedVotes.osis.name.split('&')[0].trim().substring(0, 14);
-        summaryOsis.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-blue-800 border border-blue-900 text-white font-heading font-bold shadow-xs transition-all';
+        summaryOsis.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-[#007979] border border-[#005f5f] text-white font-heading font-bold shadow-xs transition-all';
         summaryOsis.innerHTML = `
           <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span>OSIS: <strong class="text-amber-300">#${num}</strong> <span class="font-normal text-blue-100">(${shortName})</span></span>
+          <span>OSIS: <strong class="text-amber-300">#${num}</strong> <span class="font-normal text-teal-100">(${shortName})</span></span>
         `;
       } else {
         summaryOsis.className = 'flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-700 font-heading font-semibold transition-all';
@@ -649,8 +649,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('fullscreenchange', () => {
       const isFull = !!document.fullscreenElement;
       btnFullscreen.innerHTML = isFull
-        ? `<i data-lucide="minimize" class="w-4 h-4 text-blue-800"></i><span class="hidden md:inline">Keluar Layar Penuh</span>`
-        : `<i data-lucide="maximize" class="w-4 h-4 text-blue-800"></i><span class="hidden md:inline">Layar Penuh</span>`;
+        ? `<i data-lucide="minimize" class="w-4 h-4 text-[#007979]"></i><span class="hidden md:inline">Keluar Layar Penuh</span>`
+        : `<i data-lucide="maximize" class="w-4 h-4 text-[#007979]"></i><span class="hidden md:inline">Layar Penuh</span>`;
       if (window.lucide) window.lucide.createIcons();
     });
   }

@@ -37,7 +37,7 @@ export default {
           800: '#92400e',
           900: '#78350f',
         },
-        primary: '#1E40AF',
+        primary: '#007979',
         accent: '#FBBF24',
         success: '#16A34A',
         danger: '#DC2626',
