@@ -363,7 +363,7 @@ export async function adminResetAllVotes() {
 // 7. PENGATURAN PEMILIHAN (ELECTION SETTINGS)
 // -------------------------------------------------------------
 const DEFAULT_SETTINGS = {
-  school_name: 'SIT HARAPAN UMAT',
+  school_name: 'SIT HARAPAN UMAT KARAWANG',
   election_title: 'PEMILIHAN KETUA OSIS & PRADANA AMBALAN',
   election_period: '2026/2027',
   vote_scope: 'all',

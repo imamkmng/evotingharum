@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.election_settings (
 -- Masukkan pengaturan default
 INSERT INTO public.election_settings (key, value)
 VALUES 
-    ('school_name', 'SIT HARAPAN UMAT'),
+    ('school_name', 'SIT HARAPAN UMAT KARAWANG'),
     ('election_title', 'PEMILIHAN KETUA OSIS & PRADANA AMBALAN'),
     ('election_period', '2026/2027'),
     ('vote_scope', 'all'),
