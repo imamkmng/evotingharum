@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Top Arc Path for Circular Text -->
+    <path id="topTextPath" d="M 65,250 A 185,185 0 1,1 435,250" fill="none" />
+    <!-- Bottom Arc Path for Circular Text -->
+    <path id="bottomTextPath" d="M 435,250 A 185,185 0 0,1 65,250" fill="none" />
+  </defs>
+
+  <!-- Outer Red Circle -->
+  <circle cx="250" cy="250" r="240" fill="#D32525" />
+
+  <!-- Circular Text -->
+  <text fill="#ffffff" font-family="'Arial Black', 'Poppins', 'Montserrat', sans-serif" font-size="27" font-weight="900" letter-spacing="4">
+    <textPath href="#topTextPath" startOffset="50%" text-anchor="middle">
+      ★ SEKOLAH ISLAM TERPADU ★
+    </textPath>
+  </text>
+  <text fill="#ffffff" font-family="'Arial Black', 'Poppins', 'Montserrat', sans-serif" font-size="25" font-weight="900" letter-spacing="3.5">
+    <textPath href="#bottomTextPath" startOffset="50%" text-anchor="middle">
+      HARAPAN UMAT - KARAWANG
+    </textPath>
+  </text>
+
+  <!-- Outer White 8-Pointed Star -->
+  <g transform="translate(250, 250)">
+    <rect x="-115" y="-115" width="230" height="230" fill="#ffffff" rx="4" />
+    <rect x="-115" y="-115" width="230" height="230" fill="#ffffff" rx="4" transform="rotate(45)" />
+    
+    <!-- Inner Red 8-Pointed Star -->
+    <rect x="-98" y="-98" width="196" height="196" fill="#D32525" rx="3" />
+    <rect x="-98" y="-98" width="196" height="196" fill="#D32525" rx="3" transform="rotate(45)" />
+
+    <!-- Center Circle with Dome & Minaret -->
+    <circle cx="0" cy="-15" r="75" fill="none" stroke="#ffffff" stroke-width="4.5" />
+    
+    <!-- Mosque Dome -->
+    <path d="M -45,10 C -45,-35 -20,-50 0,-62 C 20,-50 45,-35 45,10 Z" fill="#ffffff" />
+    
+    <!-- Minaret on the Right -->
+    <rect x="24" y="-55" width="9" height="65" fill="#ffffff" />
+    <!-- Minaret Dome & Crescent -->
+    <path d="M 22,-55 C 22,-65 28.5,-72 28.5,-72 C 28.5,-72 35,-65 35,-55 Z" fill="#ffffff" />
+    <!-- Crescent Moon -->
+    <circle cx="28.5" cy="-78" r="4.5" fill="#ffffff" />
+    <circle cx="30" cy="-78" r="3.5" fill="#D32525" />
+
+    <!-- Open Quran Book at Base -->
+    <path d="M -50,16 C -25,12 0,22 0,22 C 0,22 25,12 50,16 L 47,-3 C 25,-7 0,3 0,3 C 0,3 -25,-7 -47,-3 Z" fill="#ffffff" stroke="#D32525" stroke-width="2" />
+    
+    <!-- Small Center Dome Accent -->
+    <circle cx="0" cy="5" r="4" fill="#D32525" />
+
+    <!-- HARUM Banner Box -->
+    <rect x="-65" y="32" width="130" height="30" fill="#D32525" stroke="#ffffff" stroke-width="4.5" rx="3" />
+    <text x="0" y="55" fill="#ffffff" font-family="'Arial Black', 'Georgia', serif" font-size="21" font-weight="900" text-anchor="middle" letter-spacing="3.5">HARUM</text>
+  </g>
+</svg>
