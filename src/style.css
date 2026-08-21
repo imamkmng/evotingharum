@@ -64,3 +64,35 @@
 .glow-accent {
   box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.35);
 }
+
+/* Print Optimization for Berita Acara & Official Reports */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-report-modal,
+  #print-report-modal * {
+    visibility: visible;
+  }
+  #print-report-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  #print-report-modal .print\:hidden {
+    display: none !important;
+  }
+  #printable-report-content {
+    padding: 0 !important;
+    font-size: 11pt !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+}

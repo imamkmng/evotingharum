@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   // 2. TABS SWITCHING
   // -------------------------------------------------------------
-  const tabs = ['overview', 'voters', 'candidates', 'settings'];
+  const tabs = ['overview', 'voters', 'candidates'];
   tabs.forEach(tabKey => {
     const btn = document.getElementById(`tab-btn-${tabKey}`);
     if (btn) {
@@ -90,12 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById(`tab-btn-${tabKey}`);
       const content = document.getElementById(`tab-content-${tabKey}`);
       
-      if (tabKey === activeKey) {
-        btn.className = 'admin-tab-btn active px-3.5 py-2 rounded-xl bg-[#007979] text-white flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold shadow-xs cursor-pointer';
-        content.classList.remove('hidden');
-      } else {
-        btn.className = 'admin-tab-btn px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold cursor-pointer';
-        content.classList.add('hidden');
+      if (btn && content) {
+        if (tabKey === activeKey) {
+          btn.className = 'admin-tab-btn active px-3.5 py-2 rounded-xl bg-[#007979] text-white flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold shadow-xs cursor-pointer';
+          content.classList.remove('hidden');
+        } else {
+          btn.className = 'admin-tab-btn px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold cursor-pointer';
+          content.classList.add('hidden');
+        }
       }
     });
 
@@ -116,9 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!isDashboardInitialized) {
       isDashboardInitialized = true;
-      setupSettingsTab();
+      setupReportActions();
       setupVotersTab();
       setupCandidatesTab();
+      setupSettingsTab();
     }
   }
 
@@ -233,8 +236,175 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // -------------------------------------------------------------
-  // 5. TAB 2: MANAGE VOTERS (DPT)
+  // 4.5. REPORT GENERATION & DOWNLOAD ACTIONS
   // -------------------------------------------------------------
+  function setupReportActions() {
+    const btnTopPrint = document.getElementById('btn-top-print-report');
+    const btnOpenReport = document.getElementById('btn-open-report-modal');
+    const btnClosePrint = document.getElementById('btn-close-print-modal');
+    const btnDoPrint = document.getElementById('btn-do-print');
+    const btnDownloadResults = document.getElementById('btn-download-results-csv');
+    const btnDownloadVoters = document.getElementById('btn-download-voters-csv');
+    const printModal = document.getElementById('print-report-modal');
+
+    if (btnTopPrint) btnTopPrint.addEventListener('click', openPrintReportModal);
+    if (btnOpenReport) btnOpenReport.addEventListener('click', openPrintReportModal);
+    
+    if (btnClosePrint && printModal) {
+      btnClosePrint.addEventListener('click', () => {
+        printModal.classList.add('hidden');
+      });
+    }
+
+    if (btnDoPrint) {
+      btnDoPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    if (btnDownloadResults) {
+      btnDownloadResults.addEventListener('click', exportResultsCSV);
+    }
+
+    if (btnDownloadVoters) {
+      btnDownloadVoters.addEventListener('click', exportVotersCSV);
+    }
+  }
+
+  async function openPrintReportModal() {
+    const printModal = document.getElementById('print-report-modal');
+    if (!printModal) return;
+
+    try {
+      const stats = await fetchRealCountStats();
+      const now = new Date();
+
+      const rptTimestamp = document.getElementById('rpt-timestamp');
+      const rptDateNarrative = document.getElementById('rpt-date-narrative');
+      const rptTotalVoters = document.getElementById('rpt-total-voters');
+      const rptVotedCount = document.getElementById('rpt-voted-count');
+      const rptTurnoutPct = document.getElementById('rpt-turnout-pct');
+      const rptUnvotedCount = document.getElementById('rpt-unvoted-count');
+      const rptCandidatesTables = document.getElementById('rpt-candidates-tables');
+
+      if (rptTimestamp) {
+        rptTimestamp.textContent = now.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' }) + ' WIB';
+      }
+      if (rptDateNarrative) {
+        rptDateNarrative.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      }
+      if (rptTotalVoters) rptTotalVoters.textContent = `${stats.totalVoters || 0} Pemilih`;
+      if (rptVotedCount) rptVotedCount.textContent = `${stats.votedCount || 0} Suara`;
+      if (rptTurnoutPct) rptTurnoutPct.textContent = `${stats.turnoutPercentage || 0}%`;
+      if (rptUnvotedCount) rptUnvotedCount.textContent = `${stats.unvotedCount || 0} Suara`;
+
+      if (rptCandidatesTables && stats.categories) {
+        rptCandidatesTables.innerHTML = stats.categories.map((cat, idx) => {
+          const categoryTotalVotes = (cat.candidates || []).reduce((acc, c) => acc + (c.votes_count || 0), 0);
+          const sortedCandidates = [...(cat.candidates || [])].sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0));
+          const maxVotes = sortedCandidates.length > 0 ? (sortedCandidates[0].votes_count || 0) : 0;
+
+          return `
+            <div class="border border-black p-3 bg-white">
+              <div class="flex items-center justify-between border-b border-black pb-1.5 mb-2 font-bold">
+                <span class="text-xs uppercase">${idx + 1}. Kategori: ${cat.title}</span>
+                <span class="text-[11px]">Total Suara Masuk: ${categoryTotalVotes} Suara</span>
+              </div>
+              <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-black bg-slate-100 font-bold">
+                    <th class="p-1.5 border-r border-black w-14 text-center">No. Urut</th>
+                    <th class="p-1.5 border-r border-black">Nama Calon / Pasangan</th>
+                    <th class="p-1.5 border-r border-black w-24 text-right">Perolehan Suara</th>
+                    <th class="p-1.5 border-r border-black w-20 text-right">Persentase</th>
+                    <th class="p-1.5 w-24 text-center">Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sortedCandidates.map((c, cIdx) => {
+                    const pct = categoryTotalVotes > 0 ? ((c.votes_count || 0) / categoryTotalVotes * 100).toFixed(1) : '0.0';
+                    const isWinner = cIdx === 0 && maxVotes > 0;
+                    return `
+                      <tr class="border-b border-slate-300 ${isWinner ? 'bg-emerald-50 font-bold' : ''}">
+                        <td class="p-1.5 border-r border-black text-center font-mono">${c.candidate_number || '-'}</td>
+                        <td class="p-1.5 border-r border-black">${c.name || '-'}</td>
+                        <td class="p-1.5 border-r border-black text-right font-mono">${c.votes_count || 0}</td>
+                        <td class="p-1.5 border-r border-black text-right font-mono">${pct}%</td>
+                        <td class="p-1.5 text-center text-[10px] uppercase font-bold ${isWinner ? 'text-emerald-800' : 'text-slate-500'}">
+                          ${isWinner ? '★ TERPILIH' : '-'}
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }).join('');
+      }
+
+      printModal.classList.remove('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    } catch (err) {
+      alert('Gagal memuat data laporan: ' + err.message);
+    }
+  }
+
+  async function exportResultsCSV() {
+    try {
+      const stats = await fetchRealCountStats();
+      let csv = 'Kategori Pemilihan,Nomor Urut,Nama Calon / Pasangan,Perolehan Suara,Persentase Suara,Status\n';
+
+      (stats.categories || []).forEach(cat => {
+        const catTotal = (cat.candidates || []).reduce((acc, c) => acc + (c.votes_count || 0), 0);
+        const sorted = [...(cat.candidates || [])].sort((a, b) => (b.votes_count || 0) - (a.votes_count || 0));
+        const maxVotes = sorted.length > 0 ? (sorted[0].votes_count || 0) : 0;
+
+        sorted.forEach((c, idx) => {
+          const pct = catTotal > 0 ? ((c.votes_count || 0) / catTotal * 100).toFixed(1) + '%' : '0.0%';
+          const status = idx === 0 && maxVotes > 0 ? 'TERPILIH' : 'Kandidat';
+          const safeName = `"${(c.name || '').replace(/"/g, '""')}"`;
+          const safeCat = `"${(cat.title || '').replace(/"/g, '""')}"`;
+          csv += `${safeCat},${c.candidate_number || ''},${safeName},${c.votes_count || 0},${pct},${status}\n`;
+        });
+      });
+
+      triggerCsvDownload(csv, 'rekap_hasil_pemilihan_harum.csv');
+    } catch (err) {
+      alert('Gagal mengekspor data: ' + err.message);
+    }
+  }
+
+  async function exportVotersCSV() {
+    try {
+      const voters = await adminGetAllVoters();
+      let csv = 'No,NISN_NIP,Nama Lengkap,Kategori Pemilih,Status Memilih\n';
+
+      voters.forEach((v, idx) => {
+        const safeId = `"${(v.id_number || '').replace(/"/g, '""')}"`;
+        const safeName = `"${(v.name || '').replace(/"/g, '""')}"`;
+        const role = v.role === 'guru' ? 'Guru / Tenaga Pendidik' : 'Siswa';
+        const status = v.has_voted ? 'Sudah Memilih' : 'Belum Memilih';
+        csv += `${idx + 1},${safeId},${safeName},${role},${status}\n`;
+      });
+
+      triggerCsvDownload(csv, 'rekap_kehadiran_dpt_harum.csv');
+    } catch (err) {
+      alert('Gagal mengekspor data pemilih: ' + err.message);
+    }
+  }
+
+  function triggerCsvDownload(csvText, filename) {
+    const blob = new Blob(['\uFEFF' + csvText], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
   let allVotersList = [];
   let parsedCsvData = [];
 
@@ -866,25 +1036,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCopySql = document.getElementById('btn-copy-sql');
     const copySqlText = document.getElementById('copy-sql-text');
 
-    const curConfig = getSupabaseConfig();
-    inputUrl.value = curConfig.url || '';
-    inputKey.value = curConfig.key || '';
+    if (inputUrl && inputKey) {
+      const curConfig = getSupabaseConfig();
+      inputUrl.value = curConfig.url || '';
+      inputKey.value = curConfig.key || '';
+    }
 
-    formConfig.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const url = inputUrl.value.trim();
-      const key = inputKey.value.trim();
+    if (formConfig && inputUrl && inputKey) {
+      formConfig.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const url = inputUrl.value.trim();
+        const key = inputKey.value.trim();
 
-      if (!url || !key) {
-        alert('Silakan masukkan Project URL dan Anon Key.');
-        return;
-      }
+        if (!url || !key) {
+          alert('Silakan masukkan Project URL dan Anon Key.');
+          return;
+        }
 
-      saveSupabaseConfig(url, key);
-      alert('Kredensial Supabase berhasil disimpan! Website sekarang terhubung ke database Supabase Anda.');
-      updateDbStatusBadge();
-      window.location.reload();
-    });
+        saveSupabaseConfig(url, key);
+        alert('Kredensial Supabase berhasil disimpan! Website sekarang terhubung ke database Supabase Anda.');
+        updateDbStatusBadge();
+        window.location.reload();
+      });
+    }
+
+    if (btnCopySql && copySqlText) {
+      btnCopySql.addEventListener('click', async () => {
+        try {
+          const sqlScript = `-- Salin dan jalankan di SQL Editor Supabase
+CREATE TABLE IF NOT EXISTS public.voters (
+  id_number TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'siswa',
+  has_voted BOOLEAN DEFAULT FALSE,
+  voted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`;
+          await navigator.clipboard.writeText(sqlScript);
+          copySqlText.textContent = 'Tersalin!';
+          setTimeout(() => { copySqlText.textContent = 'Salin Script SQL'; }, 2000);
+        } catch (e) {
+          console.warn(e);
+        }
+      });
+    }
 
     if (btnClear) {
       btnClear.addEventListener('click', () => {
