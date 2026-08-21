@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   // 1. ADMIN AUTHENTICATION
   // -------------------------------------------------------------
-  const authGate = document.getElementById('admin-auth-gate');
+  const authGate = document.getElementById('admin-auth-gate') || document.getElementById('admin-login-modal');
   const dashboardContainer = document.getElementById('admin-dashboard-container');
-  const formAdminLogin = document.getElementById('form-admin-login');
+  const formAdminLogin = document.getElementById('form-admin-login') || document.getElementById('admin-login-form');
   const adminPasswordInput = document.getElementById('admin-password');
   const authErrorMsg = document.getElementById('auth-error-msg');
   const btnAdminLogout = document.getElementById('btn-admin-logout');
@@ -37,34 +37,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkAdminSession() {
     const isLogged = sessionStorage.getItem('evote_admin_logged');
     if (isLogged === 'true') {
-      authGate.classList.add('hidden');
-      dashboardContainer.classList.remove('hidden');
+      if (authGate) authGate.classList.add('hidden');
+      if (dashboardContainer) dashboardContainer.classList.remove('hidden');
       initDashboard();
     } else {
-      authGate.classList.remove('hidden');
-      dashboardContainer.classList.add('hidden');
+      if (authGate) authGate.classList.remove('hidden');
+      if (dashboardContainer) dashboardContainer.classList.add('hidden');
     }
   }
 
-  formAdminLogin.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const pass = adminPasswordInput.value.trim();
-    if (pass === 'admin123' || pass === 'admin') {
-      sessionStorage.setItem('evote_admin_logged', 'true');
-      authErrorMsg.classList.add('hidden');
-      authGate.classList.add('hidden');
-      dashboardContainer.classList.remove('hidden');
-      initDashboard();
-    } else {
-      authErrorMsg.classList.remove('hidden');
-      if (window.lucide) window.lucide.createIcons();
-    }
-  });
+  if (formAdminLogin) {
+    formAdminLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pass = adminPasswordInput ? adminPasswordInput.value.trim() : '';
+      if (pass === 'admin123' || pass === 'admin') {
+        sessionStorage.setItem('evote_admin_logged', 'true');
+        if (authErrorMsg) authErrorMsg.classList.add('hidden');
+        if (authGate) authGate.classList.add('hidden');
+        if (dashboardContainer) dashboardContainer.classList.remove('hidden');
+        initDashboard();
+      } else {
+        if (authErrorMsg) authErrorMsg.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
+      }
+    });
+  }
 
-  btnAdminLogout.addEventListener('click', () => {
-    sessionStorage.removeItem('evote_admin_logged');
-    window.location.reload();
-  });
+  if (btnAdminLogout) {
+    btnAdminLogout.addEventListener('click', () => {
+      sessionStorage.removeItem('evote_admin_logged');
+      window.location.reload();
+    });
+  }
 
   checkAdminSession();
 
