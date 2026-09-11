@@ -1,59 +1,71 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>E-Voting OSIS & Ambalan | Portal Pemilihan Demokratis</title>
+  <title>E-Voting OSIS & Ambalan | SMAIT Harapan Umat Karawang</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/logo-harum.svg" />
   <link rel="stylesheet" href="./src/style.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-[#007979] selection:text-amber-300 font-sans">
-  
+
+<body
+  class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between relative overflow-x-hidden selection:bg-[#007979] selection:text-amber-300 font-sans">
+
   <!-- Full-Size Background School Architecture & Ambience -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <!-- Full-Width Building Graphic Layer -->
     <div class="absolute inset-x-0 top-0 flex justify-center">
-      <img 
-        id="school-bg-image"
-        src="/bg-school.png" 
-        alt="Kampus Harum" 
-        class="w-full max-w-none h-[420px] sm:h-[500px] md:h-[580px] lg:h-[640px] object-cover sm:object-cover object-top opacity-30 sm:opacity-35 filter drop-shadow-sm select-none"
-      />
+      <img id="school-bg-image" src="/bg-school.png" alt="Kampus Harum"
+        class="w-full max-w-none h-[420px] sm:h-[500px] md:h-[580px] lg:h-[640px] object-cover sm:object-cover object-top opacity-30 sm:opacity-35 filter drop-shadow-sm select-none" />
     </div>
-    
+
     <!-- Professional Layered Gradients (Fades smoothly to clean white/slate canvas) -->
     <div class="absolute inset-0 bg-gradient-to-b from-slate-50/10 via-slate-50/70 to-[#F8FAFC]"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgba(248,250,252,0.5)_50%,#F8FAFC_95%)]"></div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgba(248,250,252,0.5)_50%,#F8FAFC_95%)]">
+    </div>
 
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-teal-100/35 rounded-full blur-[140px]"></div>
+    <div
+      class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-teal-100/35 rounded-full blur-[140px]">
+    </div>
   </div>
 
   <!-- Navbar -->
   <header class="relative z-10 w-full border-b border-slate-200/90 bg-white/90 backdrop-blur-md shadow-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden bg-white">
-          <img src="/logo-harum.png" onerror="this.onerror=null; this.src='/logo-harum.svg';" alt="Logo SIT Harapan Umat Karawang" class="w-full h-full object-contain rounded-full" />
+        <div
+          class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden bg-white">
+          <img src="/logo-harum.png" onerror="this.onerror=null; this.src='/logo-harum.svg';"
+            alt="Logo SIT Harapan Umat Karawang" class="w-full h-full object-contain rounded-full" />
         </div>
         <div>
-          <span class="text-[10px] uppercase tracking-widest font-extrabold text-[#007979] block font-heading">SIT HARAPAN UMAT KARAWANG</span>
-          <h1 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-heading">E-VOTING OSIS & AMBALAN</h1>
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-[#007979] block font-heading">SIT
+            HARAPAN UMAT KARAWANG</span>
+          <h1 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-heading">E-VOTING OSIS &
+            AMBALAN</h1>
         </div>
       </div>
 
       <div class="flex items-center space-x-2 sm:space-x-3">
         <!-- Fullscreen Button -->
-        <button id="btn-fullscreen-toggle" type="button" class="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-xs cursor-pointer" title="Mode Layar Penuh">
+        <button id="btn-fullscreen-toggle" type="button"
+          class="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-xs cursor-pointer"
+          title="Mode Layar Penuh">
           <i data-lucide="maximize" class="w-4 h-4 text-[#007979]"></i>
           <span class="hidden sm:inline">Layar Penuh</span>
         </button>
 
-        <a href="/admin.html" class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white transition-all shadow-xs">
+        <a href="/admin.html"
+          class="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white transition-all shadow-xs">
           <i data-lucide="shield-check" class="w-4 h-4 text-amber-500"></i>
           <span>Panel Admin</span>
         </a>
@@ -62,70 +74,64 @@
   </header>
 
   <!-- Main Content -->
-  <main class="relative z-10 flex-1 max-w-6xl mx-auto w-full px-4 py-8 sm:py-12 flex flex-col items-center justify-center">
-    
+  <main
+    class="relative z-10 flex-1 max-w-6xl mx-auto w-full px-4 py-8 sm:py-12 flex flex-col items-center justify-center">
+
     <!-- Hero / Title Section -->
     <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-      <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-xs font-bold text-[#007979] mb-4 shadow-2xs font-heading">
+      <div
+        class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-xs font-bold text-[#007979] mb-4 shadow-2xs font-heading">
         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
         <span>Gunakan Hak Suara Anda Secara LUBER & JURDIL</span>
       </div>
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight font-heading">
+      <h2
+        class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight font-heading">
         Portal E-Voting <br class="hidden sm:inline" />
         <span class="text-[#007979] underline decoration-amber-400 decoration-4 underline-offset-8">
-          Ketua OSIS & Ambalan
+          Presiden dan Wakil Presiden OSIS & Ambalan
         </span>
       </h2>
       <p class="mt-4 text-sm sm:text-base text-slate-600 font-normal max-w-lg mx-auto font-sans">
-        Salurkan aspirasi Anda dalam menentukan pemimpin masa depan Organisasi Siswa Intra Sekolah dan Pradana Pramuka Gugus Depan.
+        Salurkan aspirasi Anda dalam menentukan pemimpin masa depan Organisasi Siswa Intra Sekolah dan Pradana Pramuka
+        Gugus Depan.
       </p>
     </div>
 
     <!-- Login Card -->
     <div class="w-full max-w-md">
-      
+
       <!-- Card Login Modern & Demokratis -->
-      <div class="white-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/90 relative overflow-hidden backdrop-blur-sm">
-        
+      <div
+        class="white-card rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/90 relative overflow-hidden backdrop-blur-sm">
+
         <!-- Role Selector Tabs (Siswa & Guru) -->
         <div class="bg-slate-100 p-1.5 rounded-2xl flex items-center mb-6 border border-slate-200">
-          <button
-            type="button"
-            id="tab-siswa"
-            class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-[#007979] text-white shadow-sm font-heading cursor-pointer"
-          >
+          <button type="button" id="tab-siswa"
+            class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all bg-[#007979] text-white shadow-sm font-heading cursor-pointer">
             <i data-lucide="graduation-cap" class="w-4 h-4"></i>
             <span>Siswa (NISN)</span>
           </button>
-          <button
-            type="button"
-            id="tab-guru"
-            class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 font-heading cursor-pointer"
-          >
+          <button type="button" id="tab-guru"
+            class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900 font-heading cursor-pointer">
             <i data-lucide="briefcase" class="w-4 h-4"></i>
-            <span>Guru & Pembina (NIP/NIY)</span>
+            <span>Guru & Pembina (NIY)</span>
           </button>
         </div>
 
         <!-- Form Login -->
         <form id="login-form" class="space-y-5">
           <div>
-            <label id="input-label" for="id-number" class="block text-xs sm:text-sm font-bold text-slate-800 mb-2 font-heading">
+            <label id="input-label" for="id-number"
+              class="block text-xs sm:text-sm font-bold text-slate-800 mb-2 font-heading">
               Nomor Induk Siswa Nasional (NISN)
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                 <i id="input-icon" data-lucide="user-check" class="w-5 h-5 text-[#007979]"></i>
               </div>
-              <input
-                type="text"
-                id="id-number"
-                name="id_number"
-                placeholder="Masukkan Nomor NISN"
-                required
+              <input type="text" id="id-number" name="id_number" placeholder="Masukkan Nomor NISN" required
                 autocomplete="off"
-                class="w-full pl-11 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#007979] focus:border-transparent transition-all shadow-xs"
-              />
+                class="w-full pl-11 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#007979] focus:border-transparent transition-all shadow-xs" />
             </div>
             <p id="input-hint" class="mt-2 text-xs text-slate-500 flex items-center space-x-1.5">
               <i data-lucide="info" class="w-3.5 h-3.5 text-[#007979] flex-shrink-0"></i>
@@ -134,14 +140,12 @@
           </div>
 
           <!-- Alert Box (Hidden by default) -->
-          <div id="alert-box" class="hidden p-3.5 rounded-xl border text-xs sm:text-sm flex items-start space-x-2.5"></div>
+          <div id="alert-box" class="hidden p-3.5 rounded-xl border text-xs sm:text-sm flex items-start space-x-2.5">
+          </div>
 
           <!-- Submit Button (CTA - Hijau Toska & Kuning Semangat) -->
-          <button
-            type="submit"
-            id="btn-login"
-            class="w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-[#007979] hover:bg-[#005f5f] active:scale-[0.99] transition-all shadow-md shadow-[#007979]/20 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-heading"
-          >
+          <button type="submit" id="btn-login"
+            class="w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-[#007979] hover:bg-[#005f5f] active:scale-[0.99] transition-all shadow-md shadow-[#007979]/20 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-heading">
             <span>Verifikasi & Masuk Bilik Suara</span>
             <i data-lucide="arrow-right" class="w-4 h-4 text-amber-400"></i>
           </button>
@@ -179,4 +183,5 @@
 
   <script type="module" src="./src/login.js"></script>
 </body>
+
 </html>
