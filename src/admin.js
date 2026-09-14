@@ -113,6 +113,101 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   let isDashboardInitialized = false;
 
+  let currentElectionLocked = false;
+
+  function updateElectionStatusUI(isVotingActive) {
+    currentElectionLocked = !isVotingActive;
+    
+    // 1. Update Navbar Status Pill
+    const navPill = document.getElementById('admin-status-pill');
+    const navDot = document.getElementById('admin-status-dot');
+    const navText = document.getElementById('admin-status-text');
+
+    if (navPill && navDot && navText) {
+      if (!isVotingActive) {
+        navPill.className = 'hidden md:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 border border-rose-200 text-rose-700 font-heading shadow-2xs';
+        navDot.className = 'w-2 h-2 rounded-full bg-rose-600 animate-pulse';
+        navText.textContent = 'Pemilihan Ditutup (Terkunci)';
+      } else {
+        navPill.className = 'hidden md:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-teal-50 border border-teal-200 text-[#007979] font-heading shadow-2xs';
+        navDot.className = 'w-2 h-2 rounded-full bg-teal-600 animate-pulse';
+        navText.textContent = 'Pemilihan Dibuka';
+      }
+    }
+
+    // 2. Update Overview Control Card
+    const card = document.getElementById('card-election-status');
+    const iconWrap = document.getElementById('election-status-icon-wrap');
+    const icon = document.getElementById('election-status-icon');
+    const badge = document.getElementById('badge-election-status');
+    const desc = document.getElementById('desc-election-status');
+    const btn = document.getElementById('btn-toggle-election-lock');
+    const btnIcon = document.getElementById('btn-lock-icon');
+    const btnLabel = document.getElementById('btn-lock-label');
+
+    if (card && badge && desc && btn) {
+      if (!isVotingActive) {
+        card.className = 'white-card rounded-2xl p-5 sm:p-6 border border-rose-200 bg-rose-50/30 shadow-xs transition-all duration-300';
+        if (iconWrap) {
+          iconWrap.className = 'w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0 shadow-xs border border-rose-200';
+          iconWrap.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+        }
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 font-heading inline-flex items-center gap-1.5';
+        badge.innerHTML = '<svg class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>🔴 DITUTUP (Terkunci)</span>';
+        desc.textContent = 'Bilik suara dinonaktifkan. Pemilih tidak dapat lagi login atau voting. Layar Real Count menampilkan tanda gembok dan Hasil Akhir Resmi Terkunci.';
+        
+        btn.className = 'px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all flex items-center space-x-2 cursor-pointer font-heading';
+        btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg><span>Buka Kembali Pemilihan</span>';
+      } else {
+        card.className = 'white-card rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-xs transition-all duration-300';
+        if (iconWrap) {
+          iconWrap.className = 'w-12 h-12 rounded-2xl bg-teal-50 text-[#007979] flex items-center justify-center flex-shrink-0 shadow-xs border border-teal-200';
+          iconWrap.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
+        }
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 font-heading inline-flex items-center gap-1';
+        badge.innerHTML = '<span>🟢 Sedang Berlangsung (Buka)</span>';
+        desc.textContent = 'Bilik suara aktif menerima hak suara siswa dan guru. Layar Real Count menampilkan data secara langsung.';
+        
+        btn.className = 'px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-all flex items-center space-x-2 cursor-pointer font-heading';
+        btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Tutup & Kunci Pemilihan</span>';
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  function setupElectionLockControl() {
+    const btn = document.getElementById('btn-toggle-election-lock');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      const willLock = !currentElectionLocked;
+      const confirmMsg = willLock
+        ? '⚠️ PERINGATAN: Apakah Anda yakin ingin MENUTUP & MENGUNCI pemilihan?\n\n' +
+          '• Akses bilik suara siswa & guru akan segera dinonaktifkan.\n' +
+          '• Halaman Real Count akan menampilkan tanda GEMBOK dan status Pemilihan Telah Ditutup.\n' +
+          '• Hasil perolehan suara saat ini akan ditetapkan sebagai Hasil Akhir Resmi.'
+        : 'Konfirmasi: Apakah Anda ingin MEMBUKA KEMBALI pemungutan suara?\n\n' +
+          '• Siswa dan guru akan dapat kembali mengakses bilik suara.\n' +
+          '• Real Count akan kembali berstatus LIVE.';
+
+      if (!confirm(confirmMsg)) return;
+
+      // Optimistic instant UI update
+      localStorage.setItem('evote_election_closed', willLock ? 'true' : 'false');
+      updateElectionStatusUI(!willLock);
+
+      try {
+        await saveElectionSettings({ is_voting_active: !willLock });
+        alert(willLock 
+          ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI! Layar Real Count kini menampilkan tanda gembok dan status hasil akhir terkunci.' 
+          : '🔓 Pemilihan berhasil DIBUKA KEMBALI! Siswa dan guru dapat kembali mengakses bilik suara.');
+      } catch (err) {
+        alert('Gagal mengubah status pemilihan: ' + err.message);
+        updateElectionStatusUI(!currentElectionLocked);
+      }
+    });
+  }
+
   function initDashboard() {
     updateDbStatusBadge();
     loadOverviewData();
@@ -120,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!isDashboardInitialized) {
       isDashboardInitialized = true;
+      setupElectionLockControl();
       setupReportActions();
       setupVotersTab();
       setupCandidatesTab();
@@ -148,6 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const stats = await fetchRealCountStats();
       const { candidates, summary } = stats;
+
+      // Update election lock UI
+      const isVotingActive = summary.isVotingActive !== false;
+      updateElectionStatusUI(isVotingActive);
 
       document.getElementById('adm-total-voters').textContent = summary.totalVoters.toLocaleString('id-ID');
       document.getElementById('adm-voted-voters').textContent = summary.votedCount.toLocaleString('id-ID');

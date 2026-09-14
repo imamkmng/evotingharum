@@ -178,3 +178,45 @@ Sebelum menentukan pilihan, manfaatkan fitur interaktif pada tiap kartu kandidat
 ### 3. Tips Penyajian di Bilik Suara Offline (TPS Sekolah)
 - Bagian 1 dari dokumen ini dapat di-*export* ke PDF atau dicetak menggunakan kertas A3/A4 dan dilaminating untuk ditempel di dinding bilik suara setiap bilik TPS.
 - Tampilkan video tutorial looping di proyektor aula atau layar TV ruang tunggu TPS agar para siswa yang mengantre sudah paham alurnya sebelum memasuki bilik suara.
+
+---
+
+## BAGIAN 5: PANDUAN FITUR KUNCI PEMILIHAN & GEMBOK REAL COUNT 🔒
+
+### A. Cara Mengunci Pemilihan (Melalui Panel Admin)
+1. Buka **Panel Admin** (`/admin.html`) dan login menggunakan kata sandi admin.
+2. Di tab **"Ringkasan Hasil (Overview)"**, terdapat kartu **"Status Pemilihan & Kunci Bilik Suara"**.
+3. Klik tombol merah **"Tutup & Kunci Pemilihan"**.
+4. Konfirmasikan dialog persetujuan penutupan pemilu.
+5. Status sistem akan langsung berubah menjadi **🔴 DITUTUP (Terkunci)** dan tersinkronisasi ke database secara *realtime*.
+
+### B. Perubahan Visual di Halaman Real Count (`/realcount.html`)
+Saat pemilihan ditutup, layar Real Count di proyektor panggung akan secara otomatis menampilkan:
+1. **Banner Gembok Raksasa di Bagian Atas**:
+   - Menampilkan ikon gembok emas bersinar (`lock`) dengan latar gradasi merah marun.
+   - Bertuliskan: **"PEMILIHAN SUDAH DITUTUP (HASIL AKHIR RESMI)"**.
+   - Keterangan: *"Bilik suara telah dikunci dan tidak lagi menerima suara baru. Seluruh perolehan suara di bawah ini bersifat final, sah, dan terkunci."*
+2. **Badge Header**: Berubah dari *LIVE REAL COUNT* menjadi badge merah bertanda gembok **"TERKUNCI"**.
+3. **Pita Pemenang Terpilih**: Kandidat peraih suara terbanyak kini ditandai dengan pita emas **"🔒 TERPILIH"**.
+4. **Badge Suara Tiap Kategori**: Menampilkan ikon gembok dengan status **"Hasil Terkunci: X Suara"**.
+
+### C. Cara Menampilkan & Menguji Tampilan Gembok / Terkunci
+Ada 3 cara mudah untuk menampilkan gembok:
+1. **Langsung dari Layar Real Count (`/realcount.html`)**:
+   - Di pojok kanan atas layar Real Count, klik tombol merah **[🔒 Kunci Pemilihan]** atau klik tombol **[Kunci Pemilihan Sekarang]** pada banner panduan.
+   - Konfirmasi penutupan, layar akan **seketika (0 detik)** memunculkan banner gembok besar dan pita terpilih!
+2. **Melalui Panel Admin (`/admin.html`)**:
+   - Masuk ke menu **Overview**, cari kartu **"Status Pemilihan & Kunci Bilik Suara"**.
+   - Klik tombol **[Tutup & Kunci Pemilihan]**.
+3. **Uji Coba Langsung via Link / URL**:
+   - Anda dapat langsung membuka link:  
+     `http://localhost:5173/realcount.html?locked=true`  
+     *(Layar otomatis terkunci dan menampilkan semua gembok & banner hasil akhir tanpa perlu login ulang)*.
+   - Untuk membuka kembali: klik tombol putih **[Buka Kembali Pemilihan]** di dalam banner atau buka `http://localhost:5173/realcount.html?locked=false`.
+
+### D. Keamanan di Bilik Suara (`/index.html` & `/vote.html`)
+- Jika siswa/guru membuka halaman login setelah pemilihan ditutup, sistem akan menampilkan peringatan:  
+  *"🔒 Pemungutan Suara Telah Ditutup: Pemilihan telah resmi diakhiri dan dikunci oleh panitia."*
+- Tombol login otomatis dinonaktifkan dengan tulisan **"Pemilihan Telah Ditutup (Terkunci)"**.
+- Jika pemilih sedang berada di dalam bilik suara saat dikunci, layar pemilih otomatis diblokir dan dikembalikan ke halaman awal.
+

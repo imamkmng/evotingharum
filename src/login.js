@@ -1,4 +1,4 @@
-import { checkVoter } from './supabase.js';
+import { checkVoter, fetchElectionSettings, onSettingsChange } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Sync custom school background image if set
@@ -25,6 +25,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   const btnLogin = document.getElementById('btn-login');
   const alertBox = document.getElementById('alert-box');
+
+  // Cek apakah pemilihan sedang aktif atau ditutup
+  async function checkElectionStatus() {
+    try {
+      const settings = await fetchElectionSettings();
+      if (settings && settings.is_voting_active === false) {
+        showAlert('<strong>🔒 Pemungutan Suara Telah Ditutup</strong><br>Pemilihan telah resmi diakhiri dan dikunci oleh panitia. Bilik suara tidak lagi menerima akses pemilih baru.', 'warning');
+        if (btnLogin) {
+          btnLogin.disabled = true;
+          btnLogin.className = 'w-full py-3.5 px-4 rounded-xl font-bold text-sm sm:text-base text-white bg-slate-500 cursor-not-allowed opacity-80 flex items-center justify-center space-x-2 font-heading shadow-none';
+          btnLogin.innerHTML = `
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="2"></path></svg>
+            <span>Pemilihan Telah Ditutup (Terkunci)</span>
+          `;
+        }
+        if (idInput) {
+          idInput.disabled = true;
+          idInput.placeholder = 'Pemilihan telah resmi ditutup';
+        }
+      } else {
+        if (idInput && idInput.disabled && idInput.placeholder === 'Pemilihan telah resmi ditutup') {
+          idInput.disabled = false;
+          idInput.placeholder = currentRole === 'siswa' ? 'Masukkan Nomor NISN' : 'Masukkan Nomor NIP atau NIY';
+          hideAlert();
+          resetButtonState();
+        }
+      }
+    } catch (e) {}
+  }
+  checkElectionStatus();
+  onSettingsChange(checkElectionStatus);
 
   function setRole(role) {
     currentRole = role;

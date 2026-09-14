@@ -56,29 +56,30 @@
               class="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#007979] shadow-xs"
             />
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <i data-lucide="key" class="w-4 h-4"></i>
+              <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 2-2 2m-6 6 2-2m-2 2-6.5 6.5a2.12 2.12 0 0 1-3-3L12 7m0 0 2-2m-2 2 3-3"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg>
             </div>
           </div>
+          <p class="text-[11px] text-slate-500 mt-1.5 font-sans">Kata sandi default: <code class="px-1.5 py-0.5 rounded bg-slate-100 font-mono font-bold text-[#007979]">admin123</code></p>
         </div>
 
         <div id="rc-auth-error" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center space-x-2">
-          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-          <span>Kata sandi salah! Akses ditolak.</span>
+          <svg class="w-4 h-4 text-red-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>Kata sandi salah! Gunakan password: admin123</span>
         </div>
 
         <button 
           type="submit"
           class="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-[#007979] hover:bg-[#005f5f] transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer font-heading"
         >
-          <i data-lucide="unlock" class="w-4 h-4 text-amber-400"></i>
-          <span>Buka Real Count</span>
+          <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+          <span>Buka Layar Real Count</span>
         </button>
       </form>
 
       <div class="mt-6 pt-4 border-t border-slate-200">
         <a href="/index.html" class="text-xs text-slate-500 hover:text-[#007979] font-semibold flex items-center justify-center space-x-1 transition-colors">
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-          <span>Kembali ke Halaman Login</span>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Kembali ke Halaman Login Pemilih</span>
         </a>
       </div>
     </div>
@@ -98,10 +99,14 @@
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <h1 class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-heading">LIVE REAL COUNT (ADMIN)</h1>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-[#007979] border border-teal-200 font-heading">
+              <h1 id="rc-header-title" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight font-heading">LIVE REAL COUNT (ADMIN)</h1>
+              <span id="rc-live-badge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-[#007979] border border-teal-200 font-heading">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping mr-1"></span>
                 SIT HARAPAN UMAT
+              </span>
+              <span id="rc-lock-badge" class="hidden inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-600 text-white border border-rose-700 font-heading shadow-xs animate-pulse">
+                <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>TERKUNCI</span>
               </span>
             </div>
             <p class="text-[11px] text-slate-500 font-sans">Pemilihan Ketua OSIS & Ambalan Pradana Putra/Putri</p>
@@ -111,28 +116,34 @@
         <!-- Global Actions & Controls -->
         <div class="flex items-center space-x-2 sm:space-x-2.5">
           <div class="hidden md:flex items-center space-x-1.5 text-xs text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl font-sans">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-[#007979]"></i>
+            <svg class="w-3.5 h-3.5 text-[#007979]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             <span>Update: <strong id="last-updated-time" class="text-slate-900 font-mono">Memuat...</strong></span>
           </div>
 
           <button id="btn-refresh" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-[#007979] hover:bg-slate-50 text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer" title="Segarkan Data Realtime">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
             <span class="hidden sm:inline">Refresh</span>
           </button>
 
           <button id="btn-fullscreen" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-[#007979] hover:bg-[#007979] hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer" title="Layar Penuh (Proyektor/Panggung)">
-            <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
             <span class="hidden sm:inline">Layar Penuh</span>
           </button>
 
           <a href="/admin.html" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[#007979] text-white hover:bg-[#005f5f] text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
+            <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
             <span class="hidden sm:inline">Panel Admin</span>
           </a>
 
-          <button id="btn-rc-logout" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 hover:bg-red-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all cursor-pointer" title="Kunci Real Count">
-            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Kunci</span>
+          <!-- Tombol Kunci / Buka Pemilihan langsung dari Layar Real Count -->
+          <button id="btn-rc-toggle-election-lock" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer" title="Kunci / Tutup Pemilihan">
+            <svg id="btn-rc-lock-icon" class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span id="btn-rc-lock-text" class="whitespace-nowrap font-heading">Kunci Pemilihan</span>
+          </button>
+
+          <button id="btn-rc-logout" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-900 text-xs font-bold font-heading flex items-center space-x-1.5 transition-all cursor-pointer" title="Keluar dari Real Count">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span class="hidden sm:inline">Keluar</span>
           </button>
         </div>
 
@@ -208,7 +219,71 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 flex-1 w-full">
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
+
+      <!-- Live Status Hint (Tampil saat status pemilihan masih LIVE agar admin tahu cara menguncinya) -->
+      <div id="notice-election-live" class="rounded-2xl p-4 sm:p-4.5 bg-gradient-to-r from-teal-50 via-white to-amber-50/60 border border-teal-200/90 text-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-[#007979] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-900 font-heading text-xs sm:text-sm">Status Pemilihan: Sedang Berlangsung (LIVE)</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-100 text-[#007979] border border-teal-200 font-heading">Bilik Suara Aktif</span>
+            </div>
+            <p class="text-slate-500 text-[11px] mt-0.5 font-sans">
+              Untuk mengakhiri pemilihan dan menampilkan <strong>banner gembok resmi</strong> pada layar ini, klik tombol di sebelah kanan.
+            </p>
+          </div>
+        </div>
+        <button id="btn-quick-lock-notice" type="button" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer font-heading whitespace-nowrap self-end sm:self-auto hover:scale-[1.02] active:scale-[0.98]">
+          <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Kunci Pemilihan Sekarang</span>
+        </button>
+      </div>
+
+      <!-- Banner Kunci Pemilihan (Tampil saat status pemilihan DITUTUP oleh Admin) -->
+      <div id="banner-election-closed" class="hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-r from-rose-700 via-red-600 to-amber-600 text-white shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border-2 border-rose-300/40 relative overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        <!-- Big Watermark Lock SVG -->
+        <div class="absolute -right-8 -bottom-8 opacity-15 pointer-events-none text-white select-none">
+          <svg class="w-64 h-64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        
+        <div class="flex items-center space-x-4 z-10">
+          <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center flex-shrink-0 border-2 border-white/40 shadow-inner">
+            <svg class="w-8 h-8 text-amber-300 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 font-heading shadow-xs">
+                🔒 STATUS: TERKUNCI RESMI
+              </span>
+              <span class="text-xs font-bold text-amber-200 font-sans flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Pemungutan Suara Selesai
+              </span>
+            </div>
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight font-heading mt-1.5 text-white">
+              PEMILIHAN SUDAH DITUTUP (HASIL AKHIR RESMI)
+            </h2>
+            <p class="text-xs sm:text-sm text-white/95 font-normal mt-1 max-w-2xl font-sans leading-relaxed">
+              Bilik suara telah dikunci dan tidak lagi menerima suara baru. Seluruh perolehan suara di bawah ini bersifat final, sah, dan mengikat.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center space-x-2 z-10 w-full md:w-auto justify-end gap-2.5">
+          <button id="btn-banner-unlock" type="button" class="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center space-x-2 border border-white/40 transition-all cursor-pointer font-heading shadow-md hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            <span>Buka Kembali Pemilihan</span>
+          </button>
+          <div class="px-4 py-2.5 rounded-xl bg-black/40 backdrop-blur-md border border-white/30 text-xs text-amber-300 font-mono font-bold flex items-center space-x-2 shadow-inner">
+            <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+            <span>Hasil Sah & Terkunci</span>
+          </div>
+        </div>
+      </div>
 
       <!-- =================================================================== -->
       <!-- KATEGORI 1: SUARA MASUK DAN JUMLAH SISWA / PEMBINA                 -->

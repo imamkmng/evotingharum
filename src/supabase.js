@@ -80,6 +80,18 @@ export async function checkVoter(idNumber) {
     return { exists: false, message: 'Koneksi ke database Supabase belum terkonfigurasi.' };
   }
 
+  // 0. Cek apakah pemilihan sedang dibuka atau ditutup
+  try {
+    const settings = await fetchElectionSettings();
+    if (settings && settings.is_voting_active === false) {
+      return { 
+        exists: false, 
+        isClosed: true,
+        message: 'Pemilihan telah resmi DITUTUP oleh Panitia. Bilik suara tidak lagi menerima suara baru.' 
+      };
+    }
+  } catch (e) {}
+
   try {
     const queryPromise = supabase
       .from('voters')
@@ -150,6 +162,14 @@ export async function submitVotes({ voterId, osisId, ambalanPaId, ambalanPiId })
   }
 
   try {
+    // 0. Cek apakah pemilihan telah ditutup
+    try {
+      const settings = await fetchElectionSettings();
+      if (settings && settings.is_voting_active === false) {
+        return { success: false, message: 'Pemilihan telah resmi ditutup oleh panitia! Suara Anda tidak dapat dikirim.' };
+      }
+    } catch (e) {}
+
     // 1. Coba panggil transaksi fungsi RPC submit_votes
     try {
       const { data, error } = await supabase.rpc('submit_votes', {
@@ -207,19 +227,24 @@ export async function fetchRealCountStats() {
   const supabase = getSupabaseClient();
   let candidates = [];
   let voters = [];
+  let settings = DEFAULT_SETTINGS;
 
   if (supabase) {
     try {
-      const [candRes, voterRes] = await Promise.all([
+      const [candRes, voterRes, settingsData] = await Promise.all([
         supabase.from('candidates').select('*').order('candidate_number', { ascending: true }),
-        supabase.from('voters').select('id_number, role, has_voted')
+        supabase.from('voters').select('id_number, role, has_voted'),
+        fetchElectionSettings().catch(() => DEFAULT_SETTINGS)
       ]);
 
       if (!candRes.error && candRes.data) candidates = candRes.data;
       if (!voterRes.error && voterRes.data) voters = voterRes.data;
+      if (settingsData) settings = settingsData;
     } catch (err) {
       console.warn('Supabase realcount fetch error:', err);
     }
+  } else {
+    settings = await fetchElectionSettings().catch(() => DEFAULT_SETTINGS);
   }
 
   const totalVoters = voters.length;
@@ -238,6 +263,7 @@ export async function fetchRealCountStats() {
   return {
     candidates,
     voters,
+    settings,
     summary: {
       totalVoters,
       votedCount,
@@ -249,6 +275,7 @@ export async function fetchRealCountStats() {
       totalGuru,
       votedGuru,
       guruPercent,
+      isVotingActive: settings.is_voting_active !== false,
       lastUpdated: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     }
   };
@@ -259,7 +286,13 @@ export async function fetchRealCountStats() {
 // -------------------------------------------------------------
 export function subscribeToRealtimeChanges(onUpdate) {
   const supabase = getSupabaseClient();
-  if (!supabase) return () => {};
+  const unsubscribeLocal = onSettingsChange(() => {
+    onUpdate();
+  });
+
+  if (!supabase) {
+    return unsubscribeLocal;
+  }
 
   const channel = supabase
     .channel('realcount-live-sync')
@@ -269,9 +302,13 @@ export function subscribeToRealtimeChanges(onUpdate) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'voters' }, () => {
       onUpdate();
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'election_settings' }, () => {
+      onUpdate();
+    })
     .subscribe();
 
   return () => {
+    unsubscribeLocal();
     supabase.removeChannel(channel);
   };
 }
@@ -362,21 +399,98 @@ export async function adminResetAllVotes() {
 // -------------------------------------------------------------
 // 7. PENGATURAN PEMILIHAN (ELECTION SETTINGS)
 // -------------------------------------------------------------
+const SETTINGS_STORAGE_KEY = 'evote_election_settings';
+const syncChannel = typeof window !== 'undefined' && window.BroadcastChannel ? new BroadcastChannel('evote_election_sync') : null;
+
+export function broadcastSettingsChange(settings) {
+  try {
+    if (syncChannel) {
+      syncChannel.postMessage({ type: 'SETTINGS_UPDATED', settings });
+    }
+  } catch (e) {}
+}
+
+export function onSettingsChange(callback) {
+  if (typeof window === 'undefined') return () => {};
+
+  const handleStorage = (e) => {
+    if (e.key === SETTINGS_STORAGE_KEY) {
+      callback();
+    }
+  };
+
+  const handleMessage = (e) => {
+    if (e.data && e.data.type === 'SETTINGS_UPDATED') {
+      callback();
+    }
+  };
+
+  window.addEventListener('storage', handleStorage);
+  if (syncChannel) syncChannel.addEventListener('message', handleMessage);
+
+  return () => {
+    window.removeEventListener('storage', handleStorage);
+    if (syncChannel) syncChannel.removeEventListener('message', handleMessage);
+  };
+}
+
 const DEFAULT_SETTINGS = {
   school_name: 'SIT HARAPAN UMAT KARAWANG',
   election_title: 'PEMILIHAN KETUA OSIS & PRADANA AMBALAN',
   election_period: '2026/2027',
   vote_scope: 'all',
-  active_categories: ['osis', 'ambalan_putra', 'ambalan_putri']
+  active_categories: ['osis', 'ambalan_putra', 'ambalan_putri'],
+  is_voting_active: true
 };
 
 export async function fetchElectionSettings() {
+  // 0. Cek parameter URL untuk pengujian langsung (?locked=true / ?kunci=1 / ?buka=1)
+  let urlLockParam = null;
+  if (typeof window !== 'undefined' && window.location && window.location.search) {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('locked') === 'true' || params.get('kunci') === '1' || params.get('closed') === 'true' || params.get('status') === 'closed') {
+        urlLockParam = false; // Closed
+        localStorage.setItem('evote_election_closed', 'true');
+      } else if (params.get('locked') === 'false' || params.get('kunci') === '0' || params.get('buka') === '1' || params.get('status') === 'open') {
+        urlLockParam = true; // Open
+        localStorage.setItem('evote_election_closed', 'false');
+      }
+    } catch (e) {}
+  }
+
+  // 1. Ambil dari localStorage terlebih dahulu sebagai data instan/offline
+  let localSettings = null;
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (raw) localSettings = JSON.parse(raw);
+  } catch (e) {}
+
+  const baseSettings = {
+    ...DEFAULT_SETTINGS,
+    ...(localSettings || {})
+  };
+
+  // Cek flag eksplisit di localStorage
+  let explicitClosed = null;
+  try {
+    explicitClosed = localStorage.getItem('evote_election_closed');
+  } catch (e) {}
+
+  if (urlLockParam !== null) {
+    baseSettings.is_voting_active = urlLockParam;
+  } else if (explicitClosed === 'true') {
+    baseSettings.is_voting_active = false;
+  } else if (explicitClosed === 'false') {
+    baseSettings.is_voting_active = true;
+  }
+
   const supabase = getSupabaseClient();
-  if (!supabase) return DEFAULT_SETTINGS;
+  if (!supabase) return baseSettings;
 
   try {
     const queryPromise = supabase.from('election_settings').select('*');
-    const { data, error } = await withTimeout(queryPromise, 5000);
+    const { data, error } = await withTimeout(queryPromise, 3000);
 
     if (!error && data && data.length > 0) {
       const settingsMap = {};
@@ -399,40 +513,79 @@ export async function fetchElectionSettings() {
         activeCategories = ['ambalan_putra', 'ambalan_putri'];
       }
 
-      return {
-        ...DEFAULT_SETTINGS,
+      let isVotingActive = baseSettings.is_voting_active;
+      // Jika tidak ada preferensi eksplisit di local/URL, gunakan dari Supabase
+      if (explicitClosed === null && urlLockParam === null && settingsMap.is_voting_active !== undefined) {
+        isVotingActive = settingsMap.is_voting_active === true || settingsMap.is_voting_active === 'true';
+      }
+
+      const merged = {
+        ...baseSettings,
         ...settingsMap,
-        active_categories: activeCategories
+        active_categories: activeCategories,
+        is_voting_active: isVotingActive
       };
+
+      try {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(merged));
+      } catch (e) {}
+
+      return merged;
     }
   } catch (err) {
-    console.warn('Could not fetch settings from Supabase:', err);
+    console.warn('Could not fetch settings from Supabase, using local settings:', err);
   }
 
-  return DEFAULT_SETTINGS;
+  return baseSettings;
 }
 
 export async function saveElectionSettings(settings) {
+  // 1. Simpan status kunci eksplisit secara instan
+  if (settings.is_voting_active !== undefined) {
+    try {
+      localStorage.setItem('evote_election_closed', settings.is_voting_active === false ? 'true' : 'false');
+    } catch (e) {}
+  }
+
+  // 2. Update local state secara langsung tanpa menunggu network
+  let localSettings = null;
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (raw) localSettings = JSON.parse(raw);
+  } catch (e) {}
+
   const updated = {
     ...DEFAULT_SETTINGS,
+    ...(localSettings || {}),
     ...settings
   };
 
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {}
+
+  // 3. Siarkan perubahan ke seluruh tab browser terbuka secara instan (0ms)
+  broadcastSettingsChange(updated);
+
+  // 4. Simpan ke Supabase di background dengan batch upsert dan timeout 3 detik
   const supabase = getSupabaseClient();
   if (supabase) {
-    try {
-      const rows = Object.entries(updated).map(([key, val]) => ({
-        key,
-        value: typeof val === 'object' ? JSON.stringify(val) : String(val)
-      }));
+    (async () => {
+      try {
+        const rows = Object.entries(updated).map(([key, val]) => ({
+          key,
+          value: typeof val === 'object' ? JSON.stringify(val) : String(val)
+        }));
 
-      for (const row of rows) {
-        await supabase.from('election_settings').upsert(row, { onConflict: 'key' });
+        const upsertPromise = supabase.from('election_settings').upsert(rows, { onConflict: 'key' });
+        const { error } = await withTimeout(upsertPromise, 3000);
+        if (error) {
+          console.warn('Supabase election_settings upsert error:', error.message);
+        }
+      } catch (err) {
+        console.warn('Failed to sync settings to Supabase, but stored in local storage:', err);
       }
-    } catch (err) {
-      console.error('Failed to sync settings to Supabase:', err);
-      throw err;
-    }
+    })();
   }
 
   return updated;

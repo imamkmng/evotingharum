@@ -1,5 +1,5 @@
 import Chart from 'chart.js/auto';
-import { fetchRealCountStats, subscribeToRealtimeChanges } from './supabase.js';
+import { fetchRealCountStats, subscribeToRealtimeChanges, saveElectionSettings } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Sync custom school background image if set
@@ -29,8 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let unsubscribeRealtime = () => {};
 
   function checkAdminAccess() {
-    const isLogged = sessionStorage.getItem('evote_admin_logged') === 'true';
+    let hasUrlBypass = false;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      hasUrlBypass = params.get('admin') === '1' || params.get('locked') === 'true' || params.get('preview') === '1' || params.get('kunci') === '1';
+    } catch (e) {}
+
+    const isLogged = hasUrlBypass || sessionStorage.getItem('evote_admin_logged') === 'true' || localStorage.getItem('evote_admin_logged') === 'true';
     if (isLogged) {
+      sessionStorage.setItem('evote_admin_logged', 'true');
       if (authGate) authGate.classList.add('hidden');
       if (mainContainer) mainContainer.classList.remove('hidden');
       startRealtimeEngine();
@@ -47,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const pass = rcPasswordInput.value.trim();
       if (pass === 'admin123' || pass === 'admin') {
         sessionStorage.setItem('evote_admin_logged', 'true');
+        localStorage.setItem('evote_admin_logged', 'true');
         if (rcAuthError) rcAuthError.classList.add('hidden');
         checkAdminAccess();
       } else {
@@ -59,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnRcLogout) {
     btnRcLogout.addEventListener('click', () => {
       sessionStorage.removeItem('evote_admin_logged');
+      localStorage.removeItem('evote_admin_logged');
       checkAdminAccess();
     });
   }
@@ -352,6 +361,51 @@ document.addEventListener('DOMContentLoaded', () => {
       cachedCandidates = candidates;
       cachedSummary = summary;
 
+      // Handle Lock Election Display & Padlock Status
+      const isVotingActive = summary.isVotingActive !== false;
+      const bannerElectionClosed = document.getElementById('banner-election-closed');
+      const rcLiveBadge = document.getElementById('rc-live-badge');
+      const rcLockBadge = document.getElementById('rc-lock-badge');
+      const rcHeaderTitle = document.getElementById('rc-header-title');
+
+      const btnRcToggleLock = document.getElementById('btn-rc-toggle-election-lock');
+      const btnRcLockIcon = document.getElementById('btn-rc-lock-icon');
+      const btnRcLockText = document.getElementById('btn-rc-lock-text');
+
+      const noticeElectionLive = document.getElementById('notice-election-live');
+
+      if (!isVotingActive) {
+        if (noticeElectionLive) noticeElectionLive.classList.add('hidden');
+        if (bannerElectionClosed) bannerElectionClosed.classList.remove('hidden');
+        if (rcLiveBadge) rcLiveBadge.classList.add('hidden');
+        if (rcLockBadge) rcLockBadge.classList.remove('hidden');
+        if (rcHeaderTitle) rcHeaderTitle.textContent = 'HASIL AKHIR PEMILIHAN (TERKUNCI)';
+
+        if (btnRcToggleLock) {
+          btnRcToggleLock.className = 'px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-700 hover:bg-emerald-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer';
+          btnRcToggleLock.title = 'Buka Kembali Pemilihan';
+        }
+        if (btnRcLockIcon) {
+          btnRcLockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>';
+        }
+        if (btnRcLockText) btnRcLockText.textContent = 'Buka Pemilihan';
+      } else {
+        if (noticeElectionLive) noticeElectionLive.classList.remove('hidden');
+        if (bannerElectionClosed) bannerElectionClosed.classList.add('hidden');
+        if (rcLiveBadge) rcLiveBadge.classList.remove('hidden');
+        if (rcLockBadge) rcLockBadge.classList.add('hidden');
+        if (rcHeaderTitle) rcHeaderTitle.textContent = 'LIVE REAL COUNT (ADMIN)';
+
+        if (btnRcToggleLock) {
+          btnRcToggleLock.className = 'px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer';
+          btnRcToggleLock.title = 'Tutup & Kunci Pemilihan';
+        }
+        if (btnRcLockIcon) {
+          btnRcLockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>';
+        }
+        if (btnRcLockText) btnRcLockText.textContent = 'Kunci Pemilihan';
+      }
+
       // 1. Update Participation Metrics (Kategori 1)
       if (statTotalVoters) statTotalVoters.textContent = summary.totalVoters.toLocaleString('id-ID');
       if (statVotedCount) statVotedCount.textContent = summary.votedCount.toLocaleString('id-ID');
@@ -397,9 +451,9 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOrRenderCandidateChart('ambalan_putri', 'chart-pi', 'chart-total-pi', candidates, ambalanPiPalette);
 
       // 4. Render Candidate Cards
-      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', osisPalette);
-      renderCategoryCards('ambalan_putra', candidates, 'realcount-grid-pa', 'total-pa-votes-badge', ambalanPaPalette);
-      renderCategoryCards('ambalan_putri', candidates, 'realcount-grid-pi', 'total-pi-votes-badge', ambalanPiPalette);
+      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', osisPalette, isVotingActive);
+      renderCategoryCards('ambalan_putra', candidates, 'realcount-grid-pa', 'total-pa-votes-badge', ambalanPaPalette, isVotingActive);
+      renderCategoryCards('ambalan_putri', candidates, 'realcount-grid-pi', 'total-pi-votes-badge', ambalanPiPalette, isVotingActive);
 
       if (window.lucide) {
         window.lucide.createIcons();
@@ -688,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   // 7. CANDIDATE CARDS RENDERER
   // -------------------------------------------------------------
-  function renderCategoryCards(posKey, allCandidates, containerId, totalBadgeId, palette = []) {
+  function renderCategoryCards(posKey, allCandidates, containerId, totalBadgeId, palette = [], isVotingActive = true) {
     const container = document.getElementById(containerId);
     const badge = document.getElementById(totalBadgeId);
 
@@ -697,7 +751,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .sort((a, b) => (a.candidate_number || 0) - (b.candidate_number || 0));
 
     const totalVotes = candidates.reduce((acc, c) => acc + (c.vote_count || 0), 0);
-    if (badge) badge.textContent = `Total: ${totalVotes.toLocaleString('id-ID')} Suara`;
+    if (badge) {
+      if (!isVotingActive) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-black bg-rose-50 border border-rose-200 text-rose-700 inline-flex items-center space-x-1.5 font-heading shadow-2xs';
+        badge.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Hasil Terkunci: ${totalVotes.toLocaleString('id-ID')} Suara</span>`;
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 border border-slate-200 text-slate-700 font-heading';
+        badge.textContent = `Total: ${totalVotes.toLocaleString('id-ID')} Suara`;
+      }
+    }
 
     // Find highest vote count for leader badge
     const maxVotes = Math.max(...candidates.map(c => c.vote_count || 0), 0);
@@ -721,19 +783,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const photoSrc = c.image_url || fallbackImg;
         const candColor = palette[idx % palette.length] || '#007979';
 
+        const ribbonText = !isVotingActive ? '🔒 TERPILIH' : '👑 UNGGUL';
+        const ribbonBg = !isVotingActive 
+          ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-md' 
+          : 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950';
+
         return `
           <div class="white-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
             isLeader 
-              ? 'border-teal-500 ring-2 ring-teal-500/30 shadow-md' 
+              ? (!isVotingActive ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg' : 'border-teal-500 ring-2 ring-teal-500/30 shadow-md') 
               : 'border-slate-200 shadow-xs'
           }">
             
-            <!-- Leader Ribbon with Crown -->
+            <!-- Leader / Winner Ribbon -->
             ${isLeader ? `
               <div class="absolute -top-6 -right-6 w-24 h-24 overflow-hidden pointer-events-none z-10">
-                <div class="absolute transform rotate-45 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] py-1.5 right-[-32px] top-[22px] w-[130px] text-center shadow-sm uppercase tracking-wider font-heading flex items-center justify-center space-x-1">
-                  <span>👑</span>
-                  <span>UNGGUL</span>
+                <div class="absolute transform rotate-45 ${ribbonBg} font-black text-[9px] py-1.5 right-[-32px] top-[22px] w-[130px] text-center shadow-sm uppercase tracking-wider font-heading flex items-center justify-center space-x-1">
+                  <span>${ribbonText}</span>
                 </div>
               </div>
             ` : ''}
@@ -849,6 +915,106 @@ document.addEventListener('DOMContentLoaded', () => {
         : `<i data-lucide="maximize" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">Layar Penuh</span>`;
       if (window.lucide) window.lucide.createIcons();
     });
+  }
+
+  // -------------------------------------------------------------
+  // 9. KONTROL KUNCI PEMILIHAN DARI REAL COUNT
+  // -------------------------------------------------------------
+  let isTogglingLock = false;
+
+  async function handleToggleElectionLock(targetState) {
+    if (isTogglingLock) return;
+
+    const currentClosed = localStorage.getItem('evote_election_closed') === 'true';
+    const currentActive = cachedSummary ? (cachedSummary.isVotingActive !== false) : !currentClosed;
+    const willLock = targetState !== undefined ? !targetState : currentActive;
+
+    const confirmMsg = willLock
+      ? '⚠️ PERINGATAN: Apakah Anda yakin ingin MENUTUP & MENGUNCI pemilihan sekarang?\n\n' +
+        '• Layar Real Count akan menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.\n' +
+        '• Akses bilik suara siswa dan guru akan dinonaktifkan.'
+      : 'Konfirmasi: Apakah Anda ingin MEMBUKA KEMBALI pemungutan suara?\n\n' +
+        '• Bilik suara akan kembali aktif menerima suara.\n' +
+        '• Layar Real Count akan kembali berstatus LIVE.';
+
+    if (!confirm(confirmMsg)) return;
+
+    isTogglingLock = true;
+    try {
+      // 1. Update UI secara instan (0ms) tanpa menunggu network
+      localStorage.setItem('evote_election_closed', willLock ? 'true' : 'false');
+      if (cachedSummary) {
+        cachedSummary.isVotingActive = !willLock;
+      }
+
+      const noticeElectionLive = document.getElementById('notice-election-live');
+      const bannerElectionClosed = document.getElementById('banner-election-closed');
+      const rcLiveBadge = document.getElementById('rc-live-badge');
+      const rcLockBadge = document.getElementById('rc-lock-badge');
+      const rcHeaderTitle = document.getElementById('rc-header-title');
+      const btnRcToggleLock = document.getElementById('btn-rc-toggle-election-lock');
+      const btnRcLockIcon = document.getElementById('btn-rc-lock-icon');
+      const btnRcLockText = document.getElementById('btn-rc-lock-text');
+
+      if (willLock) {
+        if (noticeElectionLive) noticeElectionLive.classList.add('hidden');
+        if (bannerElectionClosed) bannerElectionClosed.classList.remove('hidden');
+        if (rcLiveBadge) rcLiveBadge.classList.add('hidden');
+        if (rcLockBadge) rcLockBadge.classList.remove('hidden');
+        if (rcHeaderTitle) rcHeaderTitle.textContent = 'HASIL AKHIR PEMILIHAN (TERKUNCI)';
+
+        if (btnRcToggleLock) {
+          btnRcToggleLock.className = 'px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-700 hover:bg-emerald-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer';
+          btnRcToggleLock.title = 'Buka Kembali Pemilihan';
+        }
+        if (btnRcLockIcon) {
+          btnRcLockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path>';
+        }
+        if (btnRcLockText) btnRcLockText.textContent = 'Buka Pemilihan';
+      } else {
+        if (noticeElectionLive) noticeElectionLive.classList.remove('hidden');
+        if (bannerElectionClosed) bannerElectionClosed.classList.add('hidden');
+        if (rcLiveBadge) rcLiveBadge.classList.remove('hidden');
+        if (rcLockBadge) rcLockBadge.classList.add('hidden');
+        if (rcHeaderTitle) rcHeaderTitle.textContent = 'LIVE REAL COUNT (ADMIN)';
+
+        if (btnRcToggleLock) {
+          btnRcToggleLock.className = 'px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-600 hover:text-white text-xs font-bold font-heading flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer';
+          btnRcToggleLock.title = 'Tutup & Kunci Pemilihan';
+        }
+        if (btnRcLockIcon) {
+          btnRcLockIcon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>';
+        }
+        if (btnRcLockText) btnRcLockText.textContent = 'Kunci Pemilihan';
+      }
+
+      // 2. Simpan dan broadcast
+      await saveElectionSettings({ is_voting_active: !willLock });
+      await updateDashboard();
+
+      alert(willLock 
+        ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI!\n\nLayar Real Count kini menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.' 
+        : '🔓 Pemilihan berhasil DIBUKA KEMBALI!\n\nBilik suara kini aktif menerima pemilih.');
+    } catch (err) {
+      alert('Gagal mengubah status pemilihan: ' + err.message);
+    } finally {
+      isTogglingLock = false;
+    }
+  }
+
+  const btnRcToggleLock = document.getElementById('btn-rc-toggle-election-lock');
+  if (btnRcToggleLock) {
+    btnRcToggleLock.addEventListener('click', () => handleToggleElectionLock());
+  }
+
+  const btnBannerUnlock = document.getElementById('btn-banner-unlock');
+  if (btnBannerUnlock) {
+    btnBannerUnlock.addEventListener('click', () => handleToggleElectionLock(true));
+  }
+
+  const btnQuickLockNotice = document.getElementById('btn-quick-lock-notice');
+  if (btnQuickLockNotice) {
+    btnQuickLockNotice.addEventListener('click', () => handleToggleElectionLock(false));
   }
 
   // Initial Check

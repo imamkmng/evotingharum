@@ -67,6 +67,17 @@ ON public.election_settings FOR SELECT
 TO anon, authenticated 
 USING (true);
 
+-- Izinkan admin/publik mengupdate dan menambah pengaturan
+CREATE POLICY "Public Insert Settings" 
+ON public.election_settings FOR INSERT 
+TO anon, authenticated 
+WITH CHECK (true);
+
+CREATE POLICY "Public Update Settings" 
+ON public.election_settings FOR UPDATE 
+TO anon, authenticated 
+USING (true);
+
 -- Izinkan operasi kelola untuk Admin (anon key dengan bypass atau authenticated)
 CREATE POLICY "Public Insert Candidates" ON public.candidates FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "Public Update Candidates" ON public.candidates FOR UPDATE TO anon, authenticated USING (true);

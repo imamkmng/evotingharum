@@ -1,4 +1,4 @@
-import { fetchCandidates, submitVotes, fetchElectionSettings } from './supabase.js';
+import { fetchCandidates, submitVotes, fetchElectionSettings, onSettingsChange } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Sync custom school background image if set
@@ -14,38 +14,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.lucide.createIcons();
   }
 
-  // 1. Check Voter Session Guard
-  const voterDataRaw = sessionStorage.getItem('evote_current_voter');
-  if (!voterDataRaw) {
+  // 1. Session & Auth Guard
+  const voterSession = sessionStorage.getItem('evote_current_voter');
+  if (!voterSession) {
     window.location.href = '/index.html';
     return;
   }
 
   let voter;
   try {
-    voter = JSON.parse(voterDataRaw);
+    voter = JSON.parse(voterSession);
   } catch (e) {
     window.location.href = '/index.html';
     return;
   }
 
-  // Render voter details in header
   const voterNameEl = document.getElementById('voter-name');
   const voterIdEl = document.getElementById('voter-id');
   const voterRoleBadge = document.getElementById('voter-role-badge');
   const voterIcon = document.getElementById('voter-icon');
 
-  voterNameEl.textContent = voter.name || 'Pemilih';
-  voterIdEl.textContent = voter.role === 'guru' ? `NIP/NIY: ${voter.id_number}` : `NISN: ${voter.id_number}`;
+  if (voterNameEl) voterNameEl.textContent = voter.name || 'Pemilih';
+  if (voterIdEl) voterIdEl.textContent = voter.role === 'guru' ? `NIP/NIY: ${voter.id_number}` : `NISN: ${voter.id_number}`;
   
-  if (voter.role === 'guru') {
-    voterRoleBadge.textContent = 'GURU';
-    voterRoleBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30';
-    if (voterIcon) voterIcon.classList.replace('text-blue-400', 'text-amber-400');
-  } else {
-    voterRoleBadge.textContent = 'SISWA';
-    voterRoleBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30';
+  if (voterRoleBadge) {
+    if (voter.role === 'guru') {
+      voterRoleBadge.textContent = 'GURU / PEMBINA';
+      voterRoleBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      if (voterIcon) voterIcon.classList.replace('text-blue-400', 'text-amber-400');
+    } else {
+      voterRoleBadge.textContent = 'SISWA';
+      voterRoleBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30';
+    }
   }
+
+  // Listen to cross-tab election lock
+  onSettingsChange(async () => {
+    const s = await fetchElectionSettings().catch(() => null);
+    if (s && s.is_voting_active === false) {
+      alert('⚠️ Pemilihan telah resmi DITUTUP oleh Panitia.\nBilik suara tidak lagi menerima suara baru.');
+      sessionStorage.removeItem('evote_current_voter');
+      window.location.href = '/index.html';
+    }
+  });
 
   // Cancel / Logout
   document.getElementById('btn-cancel-vote').addEventListener('click', () => {
@@ -72,6 +83,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       fetchElectionSettings().catch(e => { console.warn(e); return null; }),
       fetchCandidates().catch(e => { console.warn(e); return []; })
     ]);
+
+    if (settingsData && settingsData.is_voting_active === false) {
+      alert('Pemilihan telah resmi DITUTUP oleh Panitia. Bilik suara tidak lagi menerima suara baru.');
+      sessionStorage.removeItem('evote_current_voter');
+      window.location.href = '/index.html';
+      return;
+    }
 
     if (settingsData && settingsData.active_categories && settingsData.active_categories.length > 0) {
       activeCategories = settingsData.active_categories;
