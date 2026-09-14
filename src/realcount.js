@@ -1,5 +1,5 @@
 import Chart from 'chart.js/auto';
-import { fetchRealCountStats, subscribeToRealtimeChanges, fetchElectionSettings } from './supabase.js';
+import { fetchRealCountStats, subscribeToRealtimeChanges } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Sync custom school background image if set
@@ -64,17 +64,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // -------------------------------------------------------------
-  // DASHBOARD & CHARTS LOGIC
+  // DOM ELEMENTS & STATS BINDINGS
   // -------------------------------------------------------------
   const statTotalVoters = document.getElementById('stat-total-voters');
   const statVotedCount = document.getElementById('stat-voted-count');
   const statTurnoutPercent = document.getElementById('stat-turnout-percent');
+  const statUnvotedCount = document.getElementById('stat-unvoted-count');
+  const statUnvotedPercent = document.getElementById('stat-unvoted-percent');
+
   const statSiswaVoted = document.getElementById('stat-siswa-voted');
   const statSiswaPercent = document.getElementById('stat-siswa-percent');
   const statSiswaBar = document.getElementById('stat-siswa-bar');
+  const statSiswaUnvoted = document.getElementById('stat-siswa-unvoted');
+
   const statGuruVoted = document.getElementById('stat-guru-voted');
   const statGuruPercent = document.getElementById('stat-guru-percent');
   const statGuruBar = document.getElementById('stat-guru-bar');
+  const statGuruUnvoted = document.getElementById('stat-guru-unvoted');
+
+  const compareSiswaRate = document.getElementById('compare-siswa-rate');
+  const compareGuruRate = document.getElementById('compare-guru-rate');
   const lastUpdatedTime = document.getElementById('last-updated-time');
 
   const btnRefresh = document.getElementById('btn-refresh');
@@ -85,22 +94,240 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnChartBar = document.getElementById('chart-type-bar');
   const btnChartDoughnut = document.getElementById('chart-type-doughnut');
 
-  // Chart Instances
+  // Stage Display Mode State (Dark Projector)
+  const btnStageMode = document.getElementById('btn-stage-mode');
+  const stageModeIcon = document.getElementById('stage-mode-icon');
+  let isStageMode = localStorage.getItem('rc_stage_mode') === 'true';
+
+  // Category View State ('all', 'turnout', 'osis', 'ambalan')
+  let currentActiveView = 'all';
+  const viewTurnout = document.getElementById('view-turnout');
+  const viewOsis = document.getElementById('view-osis');
+  const viewAmbalan = document.getElementById('view-ambalan');
+
+  const tabButtons = {
+    all: document.getElementById('btn-view-all'),
+    turnout: document.getElementById('btn-view-turnout'),
+    osis: document.getElementById('btn-view-osis'),
+    ambalan: document.getElementById('btn-view-ambalan')
+  };
+
+  // Auto-Slide (Presentation Slideshow Mode) State
+  const btnAutoSlide = document.getElementById('btn-auto-slide');
+  const autoSlideIcon = document.getElementById('auto-slide-icon');
+  const autoSlideLabel = document.getElementById('auto-slide-label');
+  const autoSlideProgressContainer = document.getElementById('auto-slide-progress-container');
+  const autoSlideProgressBar = document.getElementById('auto-slide-progress-bar');
+
+  let isAutoSlideActive = false;
+  let autoSlideTimer = null;
+  let autoSlideProgressAnim = null;
+  const SLIDE_DURATION = 10000; // 10 seconds per slide
+  const ROTATION_VIEWS = ['turnout', 'osis', 'ambalan'];
+  let currentRotationIndex = 0;
+
+  // Chart Instances Map
   const chartInstances = {
     osis: null,
     ambalan_putra: null,
-    ambalan_putri: null
+    ambalan_putri: null,
+    siswa_donut: null,
+    guru_donut: null,
+    turnout_compare: null
   };
 
   let cachedCandidates = [];
+  let cachedSummary = null;
 
-  // Switch Chart Types
+  // -------------------------------------------------------------
+  // 1. STAGE DISPLAY MODE (DARK / LIGHT PROYEKTORE THEME)
+  // -------------------------------------------------------------
+  function applyStageMode(active) {
+    isStageMode = active;
+    localStorage.setItem('rc_stage_mode', active ? 'true' : 'false');
+    
+    if (active) {
+      document.body.classList.add('stage-mode');
+      if (stageModeIcon) stageModeIcon.setAttribute('data-lucide', 'sun');
+      if (btnStageMode) {
+        btnStageMode.classList.add('bg-slate-800', 'text-amber-300', 'border-slate-700');
+        btnStageMode.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+      }
+    } else {
+      document.body.classList.remove('stage-mode');
+      if (stageModeIcon) stageModeIcon.setAttribute('data-lucide', 'moon');
+      if (btnStageMode) {
+        btnStageMode.classList.remove('bg-slate-800', 'text-amber-300', 'border-slate-700');
+        btnStageMode.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+      }
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+    rebuildAllCharts();
+  }
+
+  if (btnStageMode) {
+    btnStageMode.addEventListener('click', () => {
+      applyStageMode(!isStageMode);
+    });
+  }
+
+  // Initial stage mode check
+  if (isStageMode) {
+    applyStageMode(true);
+  }
+
+  // -------------------------------------------------------------
+  // 2. CATEGORY VIEW SWITCHER LOGIC
+  // -------------------------------------------------------------
+  function setActiveView(viewKey, isManualClick = false) {
+    currentActiveView = viewKey;
+
+    // Update Tab Styles
+    Object.keys(tabButtons).forEach(key => {
+      const btn = tabButtons[key];
+      if (!btn) return;
+      if (key === viewKey) {
+        btn.classList.add('active', 'bg-[#007979]', 'text-white', 'shadow-xs');
+        btn.classList.remove('text-slate-600', 'hover:text-slate-900');
+      } else {
+        btn.classList.remove('active', 'bg-[#007979]', 'text-white', 'shadow-xs');
+        btn.classList.add('text-slate-600', 'hover:text-slate-900');
+      }
+    });
+
+    // Toggle Section Visibility
+    if (viewKey === 'all') {
+      if (viewTurnout) { viewTurnout.classList.remove('view-hidden'); viewTurnout.classList.add('view-visible'); }
+      if (viewOsis) { viewOsis.classList.remove('view-hidden'); viewOsis.classList.add('view-visible'); }
+      if (viewAmbalan) { viewAmbalan.classList.remove('view-hidden'); viewAmbalan.classList.add('view-visible'); }
+    } else if (viewKey === 'turnout') {
+      if (viewTurnout) { viewTurnout.classList.remove('view-hidden'); viewTurnout.classList.add('view-visible'); }
+      if (viewOsis) { viewOsis.classList.add('view-hidden'); viewOsis.classList.remove('view-visible'); }
+      if (viewAmbalan) { viewAmbalan.classList.add('view-hidden'); viewAmbalan.classList.remove('view-visible'); }
+    } else if (viewKey === 'osis') {
+      if (viewTurnout) { viewTurnout.classList.add('view-hidden'); viewTurnout.classList.remove('view-visible'); }
+      if (viewOsis) { viewOsis.classList.remove('view-hidden'); viewOsis.classList.add('view-visible'); }
+      if (viewAmbalan) { viewAmbalan.classList.add('view-hidden'); viewAmbalan.classList.remove('view-visible'); }
+    } else if (viewKey === 'ambalan') {
+      if (viewTurnout) { viewTurnout.classList.add('view-hidden'); viewTurnout.classList.remove('view-visible'); }
+      if (viewOsis) { viewOsis.classList.add('view-hidden'); viewOsis.classList.remove('view-visible'); }
+      if (viewAmbalan) { viewAmbalan.classList.remove('view-hidden'); viewAmbalan.classList.add('view-visible'); }
+    }
+
+    // Resize active visible charts so canvas fills perfectly
+    setTimeout(() => {
+      Object.keys(chartInstances).forEach(k => {
+        if (chartInstances[k]) {
+          try { chartInstances[k].resize(); } catch (e) {}
+        }
+      });
+    }, 100);
+
+    // If manual click while auto slide is active, sync rotation index
+    if (isManualClick && isAutoSlideActive) {
+      const idx = ROTATION_VIEWS.indexOf(viewKey);
+      if (idx !== -1) {
+        currentRotationIndex = idx;
+      }
+      resetAutoSlideTimer();
+    }
+  }
+
+  // Bind tab click events
+  if (tabButtons.all) tabButtons.all.addEventListener('click', () => setActiveView('all', true));
+  if (tabButtons.turnout) tabButtons.turnout.addEventListener('click', () => setActiveView('turnout', true));
+  if (tabButtons.osis) tabButtons.osis.addEventListener('click', () => setActiveView('osis', true));
+  if (tabButtons.ambalan) tabButtons.ambalan.addEventListener('click', () => setActiveView('ambalan', true));
+
+  // -------------------------------------------------------------
+  // 3. AUTO-SLIDE ENGINE (SLIDESHOW UNTUK LAYAR PANGGUNG)
+  // -------------------------------------------------------------
+  function startAutoSlide() {
+    isAutoSlideActive = true;
+    if (autoSlideIcon) autoSlideIcon.setAttribute('data-lucide', 'pause');
+    if (autoSlideLabel) autoSlideLabel.textContent = 'Jeda Putar';
+    if (btnAutoSlide) {
+      btnAutoSlide.classList.add('bg-teal-50', 'border-teal-300', 'text-[#007979]');
+      btnAutoSlide.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+    }
+    if (autoSlideProgressContainer) autoSlideProgressContainer.classList.remove('hidden');
+    if (window.lucide) window.lucide.createIcons();
+
+    // If starting from 'all', default to first rotation item
+    if (currentActiveView === 'all') {
+      currentRotationIndex = 0;
+      setActiveView(ROTATION_VIEWS[currentRotationIndex]);
+    } else {
+      const curIdx = ROTATION_VIEWS.indexOf(currentActiveView);
+      currentRotationIndex = curIdx !== -1 ? curIdx : 0;
+    }
+
+    resetAutoSlideTimer();
+  }
+
+  function stopAutoSlide() {
+    isAutoSlideActive = false;
+    if (autoSlideIcon) autoSlideIcon.setAttribute('data-lucide', 'play');
+    if (autoSlideLabel) autoSlideLabel.textContent = 'Putar Otomatis';
+    if (btnAutoSlide) {
+      btnAutoSlide.classList.remove('bg-teal-50', 'border-teal-300', 'text-[#007979]');
+      btnAutoSlide.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+    }
+    if (autoSlideProgressContainer) autoSlideProgressContainer.classList.add('hidden');
+    if (autoSlideProgressBar) {
+      autoSlideProgressBar.style.width = '0%';
+      autoSlideProgressBar.style.transition = 'none';
+    }
+    if (autoSlideTimer) {
+      clearTimeout(autoSlideTimer);
+      autoSlideTimer = null;
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function resetAutoSlideTimer() {
+    if (!isAutoSlideActive) return;
+
+    if (autoSlideTimer) clearTimeout(autoSlideTimer);
+
+    if (autoSlideProgressBar) {
+      autoSlideProgressBar.style.transition = 'none';
+      autoSlideProgressBar.style.width = '0%';
+      // Force reflow
+      void autoSlideProgressBar.offsetWidth;
+      autoSlideProgressBar.style.transition = `width ${SLIDE_DURATION}ms linear`;
+      autoSlideProgressBar.style.width = '100%';
+    }
+
+    autoSlideTimer = setTimeout(() => {
+      if (!isAutoSlideActive) return;
+      currentRotationIndex = (currentRotationIndex + 1) % ROTATION_VIEWS.length;
+      const nextView = ROTATION_VIEWS[currentRotationIndex];
+      setActiveView(nextView);
+      resetAutoSlideTimer();
+    }, SLIDE_DURATION);
+  }
+
+  if (btnAutoSlide) {
+    btnAutoSlide.addEventListener('click', () => {
+      if (isAutoSlideActive) {
+        stopAutoSlide();
+      } else {
+        startAutoSlide();
+      }
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 4. CHART TYPE TOGGLE (BAR / DOUGHNUT)
+  // -------------------------------------------------------------
   if (btnChartBar && btnChartDoughnut) {
     btnChartBar.addEventListener('click', () => {
       if (currentChartType === 'bar') return;
       currentChartType = 'bar';
-      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
-      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartBar.className = 'px-2.5 py-1 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartDoughnut.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
       rebuildAllCharts();
       if (window.lucide) window.lucide.createIcons();
     });
@@ -108,47 +335,71 @@ document.addEventListener('DOMContentLoaded', () => {
     btnChartDoughnut.addEventListener('click', () => {
       if (currentChartType === 'doughnut') return;
       currentChartType = 'doughnut';
-      btnChartDoughnut.className = 'px-3 py-1.5 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
-      btnChartBar.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartDoughnut.className = 'px-2.5 py-1 rounded-lg font-bold bg-[#007979] text-white shadow-xs transition-all flex items-center space-x-1 font-heading cursor-pointer';
+      btnChartBar.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 font-heading cursor-pointer';
       rebuildAllCharts();
       if (window.lucide) window.lucide.createIcons();
     });
   }
 
+  // -------------------------------------------------------------
+  // 5. DATA ENGINE & DASHBOARD UPDATE
+  // -------------------------------------------------------------
   async function updateDashboard() {
     try {
       const data = await fetchRealCountStats();
       const { candidates, summary } = data;
       cachedCandidates = candidates;
+      cachedSummary = summary;
 
-      // 1. Update Participation Summary
+      // 1. Update Participation Metrics (Kategori 1)
       if (statTotalVoters) statTotalVoters.textContent = summary.totalVoters.toLocaleString('id-ID');
       if (statVotedCount) statVotedCount.textContent = summary.votedCount.toLocaleString('id-ID');
-      if (statTurnoutPercent) statTurnoutPercent.textContent = `(${summary.turnoutPercent}%)`;
-      
+      if (statTurnoutPercent) statTurnoutPercent.textContent = `${summary.turnoutPercent}%`;
+
+      const unvotedCount = Math.max(0, summary.totalVoters - summary.votedCount);
+      const unvotedPercent = summary.totalVoters > 0 ? ((unvotedCount / summary.totalVoters) * 100).toFixed(1) : 0;
+      if (statUnvotedCount) statUnvotedCount.textContent = unvotedCount.toLocaleString('id-ID');
+      if (statUnvotedPercent) statUnvotedPercent.textContent = `(${unvotedPercent}%)`;
+
+      // Siswa Details
+      const unvotedSiswa = Math.max(0, summary.totalSiswa - summary.votedSiswa);
       if (statSiswaVoted) statSiswaVoted.textContent = `${summary.votedSiswa} / ${summary.totalSiswa}`;
       if (statSiswaPercent) statSiswaPercent.textContent = `${summary.siswaPercent}%`;
       if (statSiswaBar) statSiswaBar.style.width = `${summary.siswaPercent}%`;
+      if (statSiswaUnvoted) statSiswaUnvoted.textContent = `${unvotedSiswa} Siswa`;
 
+      // Guru / Pembina Details
+      const unvotedGuru = Math.max(0, summary.totalGuru - summary.votedGuru);
       if (statGuruVoted) statGuruVoted.textContent = `${summary.votedGuru} / ${summary.totalGuru}`;
       if (statGuruPercent) statGuruPercent.textContent = `${summary.guruPercent}%`;
       if (statGuruBar) statGuruBar.style.width = `${summary.guruPercent}%`;
+      if (statGuruUnvoted) statGuruUnvoted.textContent = `${unvotedGuru} Pembina`;
+
+      // Comparative Rates
+      if (compareSiswaRate) compareSiswaRate.textContent = `${summary.siswaPercent}%`;
+      if (compareGuruRate) compareGuruRate.textContent = `${summary.guruPercent}%`;
 
       if (lastUpdatedTime) lastUpdatedTime.textContent = summary.lastUpdated;
 
-      // 2. Render / Update Charts with distinct candidate colors
+      // 2. Render Turnout Sub-Charts (Siswa & Guru Donut + Comparison)
+      renderTurnoutDonutChart('chart-siswa-donut', 'siswa_donut', summary.votedSiswa, unvotedSiswa, '#007979', 'Siswa');
+      renderTurnoutDonutChart('chart-guru-donut', 'guru_donut', summary.votedGuru, unvotedGuru, '#D97706', 'Pembina');
+      renderTurnoutComparisonChart(summary.siswaPercent, summary.guruPercent);
+
+      // 3. Render Candidate Charts (Kategori 2 & 3)
       const osisPalette = ['#007979', '#0284C7', '#0D9488', '#009688', '#005F5F', '#20B2AA'];
       const ambalanPaPalette = ['#D97706', '#EA580C', '#CA8A04', '#B45309', '#C2410C', '#A16207'];
       const ambalanPiPalette = ['#E11D48', '#DB2777', '#9333EA', '#BE185D', '#C026D3', '#9F1239'];
 
-      updateOrRenderChart('osis', 'chart-osis', 'chart-total-osis', candidates, osisPalette);
-      updateOrRenderChart('ambalan_putra', 'chart-pa', 'chart-total-pa', candidates, ambalanPaPalette);
-      updateOrRenderChart('ambalan_putri', 'chart-pi', 'chart-total-pi', candidates, ambalanPiPalette);
+      updateOrRenderCandidateChart('osis', 'chart-osis', 'chart-total-osis', candidates, osisPalette);
+      updateOrRenderCandidateChart('ambalan_putra', 'chart-pa', 'chart-total-pa', candidates, ambalanPaPalette);
+      updateOrRenderCandidateChart('ambalan_putri', 'chart-pi', 'chart-total-pi', candidates, ambalanPiPalette);
 
-      // 3. Render Cards
-      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', 'teal', osisPalette);
-      renderCategoryCards('ambalan_putra', candidates, 'realcount-grid-pa', 'total-pa-votes-badge', 'amber', ambalanPaPalette);
-      renderCategoryCards('ambalan_putri', candidates, 'realcount-grid-pi', 'total-pi-votes-badge', 'rose', ambalanPiPalette);
+      // 4. Render Candidate Cards
+      renderCategoryCards('osis', candidates, 'realcount-grid-osis', 'total-osis-votes-badge', osisPalette);
+      renderCategoryCards('ambalan_putra', candidates, 'realcount-grid-pa', 'total-pa-votes-badge', ambalanPaPalette);
+      renderCategoryCards('ambalan_putri', candidates, 'realcount-grid-pi', 'total-pi-votes-badge', ambalanPiPalette);
 
       if (window.lucide) {
         window.lucide.createIcons();
@@ -159,25 +410,179 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // -------------------------------------------------------------
+  // 6. CHARTS BUILDER & RENDERERS
+  // -------------------------------------------------------------
+  function getThemeColors() {
+    if (isStageMode) {
+      return {
+        textColor: '#cbd5e1',
+        titleColor: '#f8fafc',
+        gridColor: 'rgba(255, 255, 255, 0.08)',
+        emptySlice: '#334155'
+      };
+    }
+    return {
+      textColor: '#475569',
+      titleColor: '#0f172a',
+      gridColor: 'rgba(226, 232, 240, 0.9)',
+      emptySlice: '#e2e8f0'
+    };
+  }
+
   function rebuildAllCharts() {
-    if (cachedCandidates.length === 0) return;
-    ['osis', 'ambalan_putra', 'ambalan_putri'].forEach(k => {
+    // Destroy all existing charts
+    Object.keys(chartInstances).forEach(k => {
       if (chartInstances[k]) {
-        chartInstances[k].destroy();
+        try { chartInstances[k].destroy(); } catch (e) {}
         chartInstances[k] = null;
       }
     });
 
-    const osisPalette = ['#007979', '#0284C7', '#0D9488', '#009688', '#005F5F', '#20B2AA'];
-    const ambalanPaPalette = ['#D97706', '#EA580C', '#CA8A04', '#B45309', '#C2410C', '#A16207'];
-    const ambalanPiPalette = ['#E11D48', '#DB2777', '#9333EA', '#BE185D', '#C026D3', '#9F1239'];
+    if (cachedSummary) {
+      const unvotedSiswa = Math.max(0, cachedSummary.totalSiswa - cachedSummary.votedSiswa);
+      const unvotedGuru = Math.max(0, cachedSummary.totalGuru - cachedSummary.votedGuru);
+      renderTurnoutDonutChart('chart-siswa-donut', 'siswa_donut', cachedSummary.votedSiswa, unvotedSiswa, '#007979', 'Siswa');
+      renderTurnoutDonutChart('chart-guru-donut', 'guru_donut', cachedSummary.votedGuru, unvotedGuru, '#D97706', 'Pembina');
+      renderTurnoutComparisonChart(cachedSummary.siswaPercent, cachedSummary.guruPercent);
+    }
 
-    updateOrRenderChart('osis', 'chart-osis', 'chart-total-osis', cachedCandidates, osisPalette);
-    updateOrRenderChart('ambalan_putra', 'chart-pa', 'chart-total-pa', cachedCandidates, ambalanPaPalette);
-    updateOrRenderChart('ambalan_putri', 'chart-pi', 'chart-total-pi', cachedCandidates, ambalanPiPalette);
+    if (cachedCandidates.length > 0) {
+      const osisPalette = ['#007979', '#0284C7', '#0D9488', '#009688', '#005F5F', '#20B2AA'];
+      const ambalanPaPalette = ['#D97706', '#EA580C', '#CA8A04', '#B45309', '#C2410C', '#A16207'];
+      const ambalanPiPalette = ['#E11D48', '#DB2777', '#9333EA', '#BE185D', '#C026D3', '#9F1239'];
+
+      updateOrRenderCandidateChart('osis', 'chart-osis', 'chart-total-osis', cachedCandidates, osisPalette);
+      updateOrRenderCandidateChart('ambalan_putra', 'chart-pa', 'chart-total-pa', cachedCandidates, ambalanPaPalette);
+      updateOrRenderCandidateChart('ambalan_putri', 'chart-pi', 'chart-total-pi', cachedCandidates, ambalanPiPalette);
+    }
   }
 
-  function updateOrRenderChart(posKey, canvasId, totalLabelId, allCandidates, palette) {
+  // Mini Donut Chart for Siswa / Pembina
+  function renderTurnoutDonutChart(canvasId, instanceKey, voted, unvoted, activeColor, labelRole) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const theme = getThemeColors();
+    const total = voted + unvoted;
+    const pct = total > 0 ? ((voted / total) * 100).toFixed(1) : 0;
+
+    if (chartInstances[instanceKey]) {
+      chartInstances[instanceKey].data.datasets[0].data = [voted, unvoted];
+      chartInstances[instanceKey].data.datasets[0].backgroundColor = [activeColor, theme.emptySlice];
+      chartInstances[instanceKey].update();
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    chartInstances[instanceKey] = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Sudah Memilih', 'Belum Memilih'],
+        datasets: [{
+          data: [voted, unvoted],
+          backgroundColor: [activeColor, theme.emptySlice],
+          borderWidth: 0,
+          cutout: '72%'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: theme.textColor,
+              font: { family: "'Poppins', sans-serif", size: 10, weight: '600' },
+              boxWidth: 10,
+              padding: 8
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            bodyFont: { family: "'Inter', sans-serif" },
+            callbacks: {
+              label: (context) => {
+                const val = context.raw || 0;
+                const p = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                return ` ${val.toLocaleString('id-ID')} ${labelRole} (${p}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Comparison Bar Chart for Siswa vs Pembina Turnout
+  function renderTurnoutComparisonChart(siswaPct, guruPct) {
+    const canvas = document.getElementById('chart-turnout-compare');
+    if (!canvas) return;
+
+    const theme = getThemeColors();
+    const sVal = parseFloat(siswaPct) || 0;
+    const gVal = parseFloat(guruPct) || 0;
+
+    if (chartInstances.turnout_compare) {
+      chartInstances.turnout_compare.data.datasets[0].data = [sVal, gVal];
+      chartInstances.turnout_compare.update();
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    chartInstances.turnout_compare = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Siswa', 'Guru & Pembina'],
+        datasets: [{
+          label: 'Partisipasi (%)',
+          data: [sVal, gVal],
+          backgroundColor: ['#007979', '#D97706'],
+          borderRadius: 8,
+          borderWidth: 0,
+          barThickness: 28
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            callbacks: {
+              label: (ctx) => ` Partisipasi: ${ctx.raw}%`
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: theme.gridColor },
+            ticks: {
+              color: theme.textColor,
+              font: { family: "'Inter', sans-serif", size: 10 },
+              callback: (val) => `${val}%`
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: {
+              color: theme.textColor,
+              font: { family: "'Poppins', sans-serif", size: 11, weight: 'bold' }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // OSIS & Ambalan Main Charts
+  function updateOrRenderCandidateChart(posKey, canvasId, totalLabelId, allCandidates, palette) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
 
@@ -189,9 +594,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalEl = document.getElementById(totalLabelId);
     if (totalEl) totalEl.textContent = `${totalVotes.toLocaleString('id-ID')} suara`;
 
-    const labels = list.map(c => `#${String(c.candidate_number).padStart(2, '0')} ${c.name.split('&')[0].trim().substring(0, 14)}`);
+    const labels = list.map(c => `#${String(c.candidate_number).padStart(2, '0')} ${c.name.split('&')[0].trim().substring(0, 16)}`);
     const dataValues = list.map(c => c.vote_count || 0);
     const backgroundColors = list.map((_, idx) => palette[idx % palette.length]);
+
+    const theme = getThemeColors();
 
     // If chart already exists with matching type, update data directly
     if (chartInstances[posKey] && chartInstances[posKey].config.type === currentChartType) {
@@ -217,8 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
           label: 'Perolehan Suara',
           data: dataValues,
           backgroundColor: backgroundColors,
-          borderColor: currentChartType === 'bar' ? backgroundColors : '#ffffff',
-          borderWidth: currentChartType === 'bar' ? 0 : 2,
+          borderColor: currentChartType === 'bar' ? backgroundColors : (isStageMode ? '#0f172a' : '#ffffff'),
+          borderWidth: currentChartType === 'bar' ? 0 : 3,
           borderRadius: currentChartType === 'bar' ? 8 : 0,
         }]
       },
@@ -230,8 +637,8 @@ document.addEventListener('DOMContentLoaded', () => {
             display: currentChartType === 'doughnut',
             position: 'bottom',
             labels: {
-              color: '#334155',
-              font: { family: "'Poppins', 'Inter', sans-serif", size: 11, weight: '600' },
+              color: theme.textColor,
+              font: { family: "'Poppins', sans-serif", size: 11, weight: '600' },
               boxWidth: 12,
               padding: 12
             }
@@ -258,15 +665,15 @@ document.addEventListener('DOMContentLoaded', () => {
           x: {
             grid: { display: false, drawBorder: false },
             ticks: {
-              color: '#475569',
-              font: { family: "'Poppins', 'Inter', sans-serif", size: 10, weight: '600' }
+              color: theme.textColor,
+              font: { family: "'Poppins', sans-serif", size: 10, weight: '600' }
             }
           },
           y: {
             beginAtZero: true,
-            grid: { color: 'rgba(226, 232, 240, 0.9)' },
+            grid: { color: theme.gridColor },
             ticks: {
-              color: '#475569',
+              color: theme.textColor,
               font: { family: "'Inter', sans-serif", size: 10 },
               precision: 0
             }
@@ -278,7 +685,10 @@ document.addEventListener('DOMContentLoaded', () => {
     chartInstances[posKey] = new Chart(ctx, chartConfig);
   }
 
-  function renderCategoryCards(posKey, allCandidates, containerId, totalBadgeId, colorTheme, palette = []) {
+  // -------------------------------------------------------------
+  // 7. CANDIDATE CARDS RENDERER
+  // -------------------------------------------------------------
+  function renderCategoryCards(posKey, allCandidates, containerId, totalBadgeId, palette = []) {
     const container = document.getElementById(containerId);
     const badge = document.getElementById(totalBadgeId);
 
@@ -293,6 +703,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxVotes = Math.max(...candidates.map(c => c.vote_count || 0), 0);
 
     if (container) {
+      if (candidates.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-8 text-center text-slate-400">
+            <p class="text-xs">Belum ada kandidat terdaftar untuk kategori ini.</p>
+          </div>
+        `;
+        return;
+      }
+
       container.innerHTML = candidates.map((c, idx) => {
         const count = c.vote_count || 0;
         const percentage = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
@@ -305,21 +724,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
           <div class="white-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
             isLeader 
-              ? 'border-[#007979] ring-2 ring-[#007979]/20 shadow-md bg-white' 
-              : 'border-slate-200 bg-white shadow-xs'
+              ? 'border-teal-500 ring-2 ring-teal-500/30 shadow-md' 
+              : 'border-slate-200 shadow-xs'
           }">
             
-            <!-- Leader Ribbon -->
+            <!-- Leader Ribbon with Crown -->
             ${isLeader ? `
-              <div class="absolute -top-6 -right-6 w-20 h-20 overflow-hidden pointer-events-none">
-                <div class="absolute transform rotate-45 bg-amber-400 text-slate-950 font-black text-[9px] py-1 right-[-35px] top-[18px] w-[120px] text-center shadow-xs uppercase tracking-wider font-heading">
-                  UNGGUL
+              <div class="absolute -top-6 -right-6 w-24 h-24 overflow-hidden pointer-events-none z-10">
+                <div class="absolute transform rotate-45 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] py-1.5 right-[-32px] top-[22px] w-[130px] text-center shadow-sm uppercase tracking-wider font-heading flex items-center justify-center space-x-1">
+                  <span>👑</span>
+                  <span>UNGGUL</span>
                 </div>
               </div>
             ` : ''}
 
             <div>
-              <!-- Top Candidate Row with Clear Portrait Photo -->
+              <!-- Top Candidate Row with Portrait Photo -->
               <div class="flex items-center space-x-3.5 mb-4">
                 <div class="relative w-16 h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xs flex-shrink-0">
                   <img 
@@ -370,6 +790,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // -------------------------------------------------------------
+  // 8. REALTIME ENGINE & SINKRONISASI
+  // -------------------------------------------------------------
   function startRealtimeEngine() {
     updateDashboard();
 
@@ -392,6 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(intervalId);
       intervalId = null;
     }
+    stopAutoSlide();
   }
 
   // Manual Refresh
@@ -427,12 +851,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initial Auth Check
+  // Initial Check
   checkAdminAccess();
 
   window.addEventListener('beforeunload', () => {
     stopRealtimeEngine();
-    ['osis', 'ambalan_putra', 'ambalan_putri'].forEach(k => {
+    Object.keys(chartInstances).forEach(k => {
       if (chartInstances[k]) chartInstances[k].destroy();
     });
   });
