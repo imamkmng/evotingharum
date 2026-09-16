@@ -1,4 +1,5 @@
 import Chart from 'chart.js/auto';
+import confetti from 'canvas-confetti';
 import { fetchRealCountStats, subscribeToRealtimeChanges, saveElectionSettings } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasUrlBypass = false;
     try {
       const params = new URLSearchParams(window.location.search);
-      hasUrlBypass = params.get('admin') === '1' || params.get('locked') === 'true' || params.get('preview') === '1' || params.get('kunci') === '1';
+      hasUrlBypass = params.get('admin') === '1' || params.get('locked') === 'true' || params.get('preview') === '1' || params.get('kunci') === '1' || params.get('ceremony') === '1' || params.get('pengumuman') === '1';
     } catch (e) { }
 
     const isLogged = hasUrlBypass || sessionStorage.getItem('evote_admin_logged') === 'true' || localStorage.getItem('evote_admin_logged') === 'true';
@@ -41,6 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authGate) authGate.classList.add('hidden');
       if (mainContainer) mainContainer.classList.remove('hidden');
       startRealtimeEngine();
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('ceremony') === '1' || params.get('pengumuman') === '1') {
+          setTimeout(() => {
+            openCeremonyModal();
+          }, 500);
+        }
+      } catch (e) { }
     } else {
       if (authGate) authGate.classList.remove('hidden');
       if (mainContainer) mainContainer.classList.add('hidden');
@@ -1015,6 +1025,735 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnQuickLockNotice) {
     btnQuickLockNotice.addEventListener('click', () => handleToggleElectionLock(false));
   }
+
+  // =========================================================================
+  // DRAMATIC REVEAL CEREMONY SYSTEM (STAGE SHOW, WEB AUDIO & CONFETTI)
+  // =========================================================================
+  const ceremonyModal = document.getElementById('ceremony-modal');
+  const ceremonyCanvas = document.getElementById('ceremony-confetti-canvas');
+  const flashOverlay = document.getElementById('ceremony-flash-overlay');
+
+  const btnOpenCeremony = document.getElementById('btn-open-ceremony');
+  const btnBannerCeremony = document.getElementById('btn-banner-ceremony');
+  const btnCloseCeremony = document.getElementById('btn-close-ceremony');
+  const btnCeremonySoundToggle = document.getElementById('btn-ceremony-sound-toggle');
+  const ceremonySoundIcon = document.getElementById('ceremony-sound-icon');
+  const ceremonySoundText = document.getElementById('ceremony-sound-text');
+  const btnCeremonyFullscreen = document.getElementById('btn-ceremony-fullscreen');
+
+  // Screens
+  const screenSetup = document.getElementById('ceremony-screen-setup');
+  const screenCountdown = document.getElementById('ceremony-screen-countdown');
+  const screenStage = document.getElementById('ceremony-screen-stage');
+
+  // Screen 1: Setup Elements
+  const btnStartCeremonyRun = document.getElementById('btn-start-ceremony-run');
+  const countdownSelect = document.getElementById('ceremony-countdown-select');
+  const raceDurationSelect = document.getElementById('ceremony-race-duration-select');
+
+  // Screen 2: Countdown Elements
+  const countdownCategoryLabel = document.getElementById('ceremony-countdown-category-label');
+  const countdownNumberEl = document.getElementById('ceremony-countdown-number');
+
+  // Screen 3: Stage Elements
+  const stageBadgeIcon = document.getElementById('ceremony-stage-badge-icon');
+  const stageCategoryName = document.getElementById('ceremony-stage-category-name');
+  const stageTotalVotes = document.getElementById('ceremony-stage-total-votes');
+  const winnerBanner = document.getElementById('ceremony-winner-banner');
+  const winnerCongratsText = document.getElementById('ceremony-winner-congrats-text');
+  const winnerNameText = document.getElementById('ceremony-winner-name-text');
+  const candidatesGrid = document.getElementById('ceremony-candidates-grid');
+
+  // Stage Bottom Controls
+  const btnCeremonyReplay = document.getElementById('btn-ceremony-replay');
+  const btnCeremonyChooseOther = document.getElementById('btn-ceremony-choose-other');
+  const btnCeremonyNextCat = document.getElementById('btn-ceremony-next-cat');
+  const ceremonyNextCatLabel = document.getElementById('ceremony-next-cat-label');
+  const btnCeremonyFinishExit = document.getElementById('btn-ceremony-finish-exit');
+
+  // State
+  let audioCtx = null;
+  let isCeremonySoundEnabled = true;
+  let ceremonyConfetti = null;
+  let countdownInterval = null;
+  let raceAnimId = null;
+
+  let ceremonyCurrentCatKey = 'osis';
+  let isSequentialCeremony = true;
+
+  if (ceremonyCanvas && confetti) {
+    try {
+      ceremonyConfetti = confetti.create(ceremonyCanvas, { resize: true, useWorker: true });
+    } catch (e) {
+      console.warn('Canvas confetti setup error:', e);
+    }
+  }
+
+  const CEREMONY_CATEGORIES = {
+    osis: {
+      key: 'osis',
+      name: 'Ketua OSIS',
+      title: 'Hasil Pemilihan Ketua OSIS',
+      congrats: 'Selamat Kepada Ketua OSIS Terpilih!',
+      badgeIcon: '🎖️',
+      palette: ['#007979', '#0284c7', '#0d9488', '#009688', '#005f5f'],
+      next: 'ambalan_putra'
+    },
+    ambalan_putra: {
+      key: 'ambalan_putra',
+      name: 'Pradana Ambalan Putra',
+      title: 'Hasil Pemilihan Pradana Putra',
+      congrats: 'Selamat Kepada Pradana Putra Terpilih!',
+      badgeIcon: '🏕️',
+      palette: ['#d97706', '#ea580c', '#ca8a04', '#b45309', '#c2410c'],
+      next: 'ambalan_putri'
+    },
+    ambalan_putri: {
+      key: 'ambalan_putri',
+      name: 'Pradana Ambalan Putri',
+      title: 'Hasil Pemilihan Pradana Putri',
+      congrats: 'Selamat Kepada Pradana Putri Terpilih!',
+      badgeIcon: '🌸',
+      palette: ['#e11d48', '#db2777', '#9333ea', '#be185d', '#c026d3'],
+      next: null
+    }
+  };
+
+  // -------------------------------------------------------------
+  // Web Audio API Synthesizer (Heartbeat, Tension Riser, Fanfare)
+  // -------------------------------------------------------------
+  function getCeremonyAudioCtx() {
+    if (!audioCtx) {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtxClass) {
+        audioCtx = new AudioCtxClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function playHeartbeatSound() {
+    if (!isCeremonySoundEnabled) return;
+    try {
+      const ctx = getCeremonyAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // Lub
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(80, now);
+      osc1.frequency.exponentialRampToValueAtTime(35, now + 0.12);
+      gain1.gain.setValueAtTime(0.4, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.13);
+
+      // Dub
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(70, now + 0.18);
+      osc2.frequency.exponentialRampToValueAtTime(30, now + 0.32);
+      gain2.gain.setValueAtTime(0.35, now + 0.18);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.18);
+      osc2.stop(now + 0.33);
+    } catch (e) { }
+  }
+
+  function playCountdownTickSound(count) {
+    if (!isCeremonySoundEnabled) return;
+    try {
+      const ctx = getCeremonyAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      const freq = 450 + (10 - Math.min(count, 10)) * 65;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.4, now + 0.09);
+
+      gain.gain.setValueAtTime(0.28, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.16);
+    } catch (e) { }
+  }
+
+  let activeTensionTimer = null;
+  let activeTensionOsc = null;
+
+  function stopTensionSound() {
+    if (activeTensionTimer) {
+      clearInterval(activeTensionTimer);
+      activeTensionTimer = null;
+    }
+    if (activeTensionOsc) {
+      try {
+        activeTensionOsc.stop();
+        activeTensionOsc.disconnect();
+      } catch (e) { }
+      activeTensionOsc = null;
+    }
+  }
+
+  function playTensionRiserSound(durationSec = 20) {
+    if (!isCeremonySoundEnabled) return;
+    stopTensionSound();
+    try {
+      const ctx = getCeremonyAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(60, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + durationSec);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(140, now);
+      filter.frequency.exponentialRampToValueAtTime(800, now + durationSec);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + durationSec * 0.8);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + durationSec + 0.05);
+      activeTensionOsc = osc;
+
+      // Accelerated rhythmic heartbeat pulses during the race
+      const startTimeMs = performance.now();
+      const totalMs = durationSec * 1000;
+      const pulseInterval = durationSec >= 15 ? 1200 : (durationSec >= 8 ? 850 : 550);
+
+      activeTensionTimer = setInterval(() => {
+        const elapsed = performance.now() - startTimeMs;
+        if (elapsed >= totalMs) {
+          clearInterval(activeTensionTimer);
+          activeTensionTimer = null;
+          return;
+        }
+        playHeartbeatSound();
+      }, pulseInterval);
+    } catch (e) { }
+  }
+
+  function playVictoryFanfareSound() {
+    if (!isCeremonySoundEnabled) return;
+    try {
+      const ctx = getCeremonyAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      function playBrassNote(freq, startTime, duration, vol = 0.26) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(freq * 3.2, startTime);
+
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.linearRampToValueAtTime(vol, startTime + 0.04);
+        gain.gain.setValueAtTime(vol * 0.85, startTime + duration - 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.02);
+      }
+
+      // Fanfare notes: Ta - Ta - Ta - Taaa!
+      const t = now + 0.05;
+      playBrassNote(261.63, t, 0.16, 0.28);        // C4
+      playBrassNote(329.63, t + 0.18, 0.16, 0.28); // E4
+      playBrassNote(392.00, t + 0.36, 0.16, 0.30); // G4
+
+      // Grand sustained chord
+      const chordTime = t + 0.55;
+      const chordDur = 2.2;
+      playBrassNote(261.63, chordTime, chordDur, 0.26); // C4
+      playBrassNote(329.63, chordTime, chordDur, 0.24); // E4
+      playBrassNote(392.00, chordTime, chordDur, 0.24); // G4
+      playBrassNote(523.25, chordTime, chordDur, 0.32); // C5
+      playBrassNote(659.25, chordTime, chordDur, 0.22); // E5
+    } catch (e) { }
+  }
+
+  // -------------------------------------------------------------
+  // Confetti Show Launcher
+  // -------------------------------------------------------------
+  function launchCeremonyConfetti() {
+    if (!ceremonyConfetti) return;
+
+    // Cannon Left
+    ceremonyConfetti({
+      particleCount: 85,
+      angle: 60,
+      spread: 75,
+      origin: { x: 0, y: 0.85 },
+      colors: ['#f59e0b', '#fbbf24', '#007979', '#38bdf8', '#ffffff', '#ec4899']
+    });
+
+    // Cannon Right
+    ceremonyConfetti({
+      particleCount: 85,
+      angle: 120,
+      spread: 75,
+      origin: { x: 1, y: 0.85 },
+      colors: ['#f59e0b', '#fbbf24', '#007979', '#38bdf8', '#ffffff', '#ec4899']
+    });
+
+    // Center Golden Blast
+    setTimeout(() => {
+      ceremonyConfetti({
+        particleCount: 130,
+        spread: 110,
+        origin: { x: 0.5, y: 0.35 },
+        colors: ['#ffd700', '#f59e0b', '#ffffff', '#00e5ff', '#a855f7']
+      });
+    }, 380);
+
+    // Continuous sparkles for 3.5s
+    const endTime = Date.now() + 3500;
+    const interval = setInterval(() => {
+      if (Date.now() > endTime) {
+        clearInterval(interval);
+        return;
+      }
+      ceremonyConfetti({
+        particleCount: 25,
+        spread: 85,
+        origin: { x: Math.random(), y: Math.random() * 0.25 },
+        colors: ['#ffd700', '#f59e0b', '#007979', '#38bdf8']
+      });
+    }, 320);
+  }
+
+  // -------------------------------------------------------------
+  // Ceremony View Orchestrator
+  // -------------------------------------------------------------
+  function showCeremonyScreen(screenKey) {
+    if (screenSetup) screenSetup.classList.toggle('hidden', screenKey !== 'setup');
+    if (screenCountdown) screenCountdown.classList.toggle('hidden', screenKey !== 'countdown');
+    if (screenStage) screenStage.classList.toggle('hidden', screenKey !== 'stage');
+  }
+
+  function triggerCeremonyFlash() {
+    if (!flashOverlay) return;
+    flashOverlay.classList.remove('animate-ceremony-flash');
+    void flashOverlay.offsetWidth; // force browser reflow
+    flashOverlay.classList.add('animate-ceremony-flash');
+  }
+
+  function openCeremonyModal() {
+    getCeremonyAudioCtx();
+    if (ceremonyModal) {
+      ceremonyModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    showCeremonyScreen('setup');
+  }
+
+  function closeCeremonyModal() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (raceAnimId) cancelAnimationFrame(raceAnimId);
+    stopTensionSound();
+    if (ceremonyModal) {
+      ceremonyModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Dramatic easing designed specifically for 20-second suspenseful race
+  function dramaticRaceEasing(t) {
+    if (t < 0.2) {
+      return 0.15 * Math.pow(t / 0.2, 1.4);
+    } else if (t < 0.8) {
+      const midT = (t - 0.2) / 0.6;
+      return 0.15 + 0.72 * midT;
+    } else {
+      const endT = (t - 0.8) / 0.2;
+      return 0.87 + 0.13 * (1 - Math.pow(1 - endT, 2));
+    }
+  }
+
+  // Helper: easeOutCubic
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  async function startCeremonyCategory(catKey) {
+    ceremonyCurrentCatKey = catKey;
+    const meta = CEREMONY_CATEGORIES[catKey] || CEREMONY_CATEGORIES.osis;
+
+    // 1. Prepare Countdown Screen
+    if (countdownCategoryLabel) {
+      countdownCategoryLabel.textContent = `PENGUMUMAN: ${meta.name.toUpperCase()}`;
+    }
+
+    const durationSec = parseInt(countdownSelect ? countdownSelect.value : '5', 10) || 5;
+    let currentCountdown = durationSec;
+
+    showCeremonyScreen('countdown');
+
+    function renderCountdownNumber(num) {
+      if (!countdownNumberEl) return;
+      countdownNumberEl.textContent = num;
+      countdownNumberEl.classList.remove('animate-countdown-pop');
+      void countdownNumberEl.offsetWidth; // trigger reflow
+      countdownNumberEl.classList.add('animate-countdown-pop');
+      playCountdownTickSound(num);
+      playHeartbeatSound();
+    }
+
+    renderCountdownNumber(currentCountdown);
+
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+      currentCountdown -= 1;
+      if (currentCountdown > 0) {
+        renderCountdownNumber(currentCountdown);
+      } else {
+        clearInterval(countdownInterval);
+        triggerCeremonyFlash();
+        launchStageRace(catKey);
+      }
+    }, 1000);
+  }
+
+  async function launchStageRace(catKey) {
+    const meta = CEREMONY_CATEGORIES[catKey] || CEREMONY_CATEGORIES.osis;
+
+    // Ensure candidate data is fresh
+    if (!cachedCandidates || cachedCandidates.length === 0) {
+      try {
+        const fresh = await fetchRealCountStats();
+        cachedCandidates = fresh.candidates || [];
+      } catch (e) { }
+    }
+
+    const list = (cachedCandidates || [])
+      .filter(c => c.position === catKey)
+      .sort((a, b) => (a.candidate_number || 0) - (b.candidate_number || 0));
+
+    const totalVotes = list.reduce((acc, c) => acc + (c.vote_count || 0), 0);
+    const maxVotes = Math.max(...list.map(c => c.vote_count || 0), 0);
+
+    // Update Stage Headings
+    if (stageBadgeIcon) stageBadgeIcon.textContent = meta.badgeIcon;
+    if (stageCategoryName) stageCategoryName.textContent = meta.title.toUpperCase();
+    if (stageTotalVotes) stageTotalVotes.textContent = totalVotes.toLocaleString('id-ID');
+
+    // Hide Winner Banner initially
+    if (winnerBanner) {
+      winnerBanner.classList.add('hidden');
+      winnerBanner.classList.remove('opacity-100', 'scale-100');
+      winnerBanner.classList.add('opacity-0', 'scale-95');
+    }
+
+    // Render Candidate Race Cards Structure
+    if (candidatesGrid) {
+      if (list.length === 0) {
+        candidatesGrid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400">
+            <p class="text-sm">Belum ada data kandidat untuk kategori ${meta.name}.</p>
+          </div>
+        `;
+      } else {
+        candidatesGrid.innerHTML = list.map((c, idx) => {
+          const numFormatted = String(c.candidate_number).padStart(2, '0');
+          const candColor = meta.palette[idx % meta.palette.length] || '#007979';
+          const fallbackImg = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80';
+          const photoSrc = c.image_url || fallbackImg;
+
+          return `
+            <div id="race-card-${c.id}" class="race-candidate-card relative rounded-2xl bg-slate-900 border border-slate-800 p-5 sm:p-6 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-lg">
+              
+              <!-- Ambient Subtle Cand Color Top Edge -->
+              <div class="absolute top-0 inset-x-0 h-1.5" style="background-color: ${candColor};"></div>
+
+              <!-- Winner Crown Ribbon (Hidden during race) -->
+              <div class="race-crown-badge hidden absolute -top-4 -right-4 w-28 h-28 overflow-hidden pointer-events-none z-20">
+                <div class="absolute transform rotate-45 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-[10px] py-1.5 right-[-32px] top-[24px] w-[140px] text-center shadow-lg uppercase tracking-wider font-heading flex items-center justify-center space-x-1">
+                  <span>👑 TERPILIH</span>
+                </div>
+              </div>
+
+              <div>
+                <!-- Candidate Info & Portrait -->
+                <div class="flex items-center space-x-4 mb-4">
+                  <div class="relative w-18 h-22 sm:w-20 sm:h-24 rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700 shadow-md flex-shrink-0">
+                    <img 
+                      src="${photoSrc}" 
+                      alt="${c.name}" 
+                      class="w-full h-full object-cover object-top"
+                      onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=80'"
+                    />
+                  </div>
+
+                  <div class="flex-1 min-w-0 pr-1">
+                    <div class="flex items-center space-x-2">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-black font-mono text-white font-heading" style="background-color: ${candColor};">
+                        #${numFormatted}
+                      </span>
+                      <span class="text-xs font-semibold text-slate-400 truncate">${c.class_grade || 'Kandidat'}</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-white leading-tight truncate mt-1.5 font-heading">
+                      ${c.name}
+                    </h3>
+                  </div>
+                </div>
+
+                <!-- Animated Progress Bar Track -->
+                <div class="space-y-1.5 mb-4">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-heading text-[11px]">Perolehan Suara:</span>
+                    <span id="race-pct-${c.id}" class="font-mono font-black text-amber-300 text-sm">0.0%</span>
+                  </div>
+                  <div class="w-full bg-slate-800/90 rounded-xl h-5 sm:h-6 p-0.5 border border-slate-700/60 overflow-hidden relative shadow-inner">
+                    <div 
+                      id="race-bar-${c.id}" 
+                      class="h-full rounded-lg transition-none w-0 animate-bar-shine shadow-xs"
+                      style="background: linear-gradient(90deg, ${candColor}, #f59e0b); width: 0%;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vote Counter -->
+              <div class="pt-3 border-t border-slate-800 flex items-baseline justify-between">
+                <span class="text-xs text-slate-400 font-heading">Jumlah Suara Sah:</span>
+                <div>
+                  <span id="race-count-${c.id}" class="font-mono font-black text-2xl sm:text-3xl text-white">0</span>
+                  <span class="text-xs text-slate-400 font-sans ml-1">suara</span>
+                </div>
+              </div>
+
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Switch to stage view
+    showCeremonyScreen('stage');
+
+    // Next Category Button Setup
+    if (btnCeremonyNextCat) {
+      if (isSequentialCeremony && meta.next && CEREMONY_CATEGORIES[meta.next]) {
+        const nextMeta = CEREMONY_CATEGORIES[meta.next];
+        btnCeremonyNextCat.classList.remove('hidden');
+        if (ceremonyNextCatLabel) {
+          ceremonyNextCatLabel.textContent = `Lanjut: ${nextMeta.name} ➔`;
+        }
+      } else {
+        btnCeremonyNextCat.classList.add('hidden');
+      }
+    }
+
+    // Start Rising Tension Sound with selected duration (Default: 20 Detik)
+    const RACE_DURATION = parseInt(raceDurationSelect ? raceDurationSelect.value : '20000', 10) || 20000;
+    playTensionRiserSound(RACE_DURATION / 1000);
+
+    const startTime = performance.now();
+
+    function frameStep(currentTime) {
+      const elapsed = currentTime - startTime;
+      const rawProgress = Math.min(1, elapsed / RACE_DURATION);
+      const easedProgress = dramaticRaceEasing(rawProgress);
+
+      list.forEach(c => {
+        const finalCount = c.vote_count || 0;
+        const finalPct = totalVotes > 0 ? (finalCount / totalVotes) * 100 : 0;
+
+        const currentPct = easedProgress * finalPct;
+        const currentCount = Math.floor(easedProgress * finalCount);
+
+        const barEl = document.getElementById(`race-bar-${c.id}`);
+        const pctEl = document.getElementById(`race-pct-${c.id}`);
+        const countEl = document.getElementById(`race-count-${c.id}`);
+
+        if (barEl) barEl.style.width = `${currentPct.toFixed(1)}%`;
+        if (pctEl) pctEl.textContent = `${currentPct.toFixed(1)}%`;
+        if (countEl) countEl.textContent = currentCount.toLocaleString('id-ID');
+      });
+
+      if (rawProgress < 1) {
+        raceAnimId = requestAnimationFrame(frameStep);
+      } else {
+        // Ensure final exact values
+        list.forEach(c => {
+          const finalCount = c.vote_count || 0;
+          const finalPct = totalVotes > 0 ? ((finalCount / totalVotes) * 100).toFixed(1) : '0.0';
+          const barEl = document.getElementById(`race-bar-${c.id}`);
+          const pctEl = document.getElementById(`race-pct-${c.id}`);
+          const countEl = document.getElementById(`race-count-${c.id}`);
+
+          if (barEl) barEl.style.width = `${finalPct}%`;
+          if (pctEl) pctEl.textContent = `${finalPct}%`;
+          if (countEl) countEl.textContent = finalCount.toLocaleString('id-ID');
+        });
+
+        // Coronation Delay for Suspense
+        setTimeout(() => {
+          coronateWinner(list, maxVotes, meta);
+        }, 500);
+      }
+    }
+
+    if (raceAnimId) cancelAnimationFrame(raceAnimId);
+    raceAnimId = requestAnimationFrame(frameStep);
+  }
+
+  function coronateWinner(list, maxVotes, meta) {
+    stopTensionSound();
+    triggerCeremonyFlash();
+    playVictoryFanfareSound();
+    launchCeremonyConfetti();
+
+    const winners = list.filter(c => (c.vote_count || 0) === maxVotes && maxVotes > 0);
+
+    // Apply Winner Card Glowing & Crown Ribbon
+    list.forEach(c => {
+      const cardEl = document.getElementById(`race-card-${c.id}`);
+      if (!cardEl) return;
+
+      const isWinner = maxVotes > 0 && (c.vote_count || 0) === maxVotes;
+      if (isWinner) {
+        cardEl.classList.add('animate-winner-glow', 'border-amber-400', 'scale-[1.03]', 'z-10');
+        cardEl.classList.remove('border-slate-800');
+        const badge = cardEl.querySelector('.race-crown-badge');
+        if (badge) {
+          badge.classList.remove('hidden');
+          badge.classList.add('animate-crown-bounce');
+        }
+      } else {
+        cardEl.classList.add('opacity-60', 'scale-[0.98]');
+      }
+    });
+
+    // Reveal Winner Banner
+    if (winnerBanner) {
+      winnerBanner.classList.remove('hidden');
+      if (winnerCongratsText) winnerCongratsText.textContent = meta.congrats;
+      if (winnerNameText) {
+        if (winners.length > 0) {
+          winnerNameText.textContent = winners.map(w => `${w.name} (${w.class_grade || 'Kandidat'})`).join(' & ');
+        } else {
+          winnerNameText.textContent = 'Belum ada suara yang masuk.';
+        }
+      }
+
+      setTimeout(() => {
+        winnerBanner.classList.remove('opacity-0', 'scale-95');
+        winnerBanner.classList.add('opacity-100', 'scale-100');
+      }, 50);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Ceremony Event Listeners Binding
+  // -------------------------------------------------------------
+  if (btnOpenCeremony) {
+    btnOpenCeremony.addEventListener('click', () => openCeremonyModal());
+  }
+
+  if (btnBannerCeremony) {
+    btnBannerCeremony.addEventListener('click', () => openCeremonyModal());
+  }
+
+  if (btnCloseCeremony) {
+    btnCloseCeremony.addEventListener('click', () => closeCeremonyModal());
+  }
+
+  if (btnCeremonyFinishExit) {
+    btnCeremonyFinishExit.addEventListener('click', () => closeCeremonyModal());
+  }
+
+  if (btnCeremonyChooseOther) {
+    btnCeremonyChooseOther.addEventListener('click', () => showCeremonyScreen('setup'));
+  }
+
+  if (btnCeremonyReplay) {
+    btnCeremonyReplay.addEventListener('click', () => startCeremonyCategory(ceremonyCurrentCatKey));
+  }
+
+  if (btnCeremonyNextCat) {
+    btnCeremonyNextCat.addEventListener('click', () => {
+      const meta = CEREMONY_CATEGORIES[ceremonyCurrentCatKey];
+      if (meta && meta.next) {
+        startCeremonyCategory(meta.next);
+      }
+    });
+  }
+
+  if (btnStartCeremonyRun) {
+    btnStartCeremonyRun.addEventListener('click', () => {
+      const selectedRadio = document.querySelector('input[name="ceremony_category"]:checked');
+      const chosenValue = selectedRadio ? selectedRadio.value : 'all';
+
+      if (chosenValue === 'all') {
+        isSequentialCeremony = true;
+        startCeremonyCategory('osis');
+      } else {
+        isSequentialCeremony = false;
+        startCeremonyCategory(chosenValue);
+      }
+    });
+  }
+
+  if (btnCeremonySoundToggle) {
+    btnCeremonySoundToggle.addEventListener('click', () => {
+      isCeremonySoundEnabled = !isCeremonySoundEnabled;
+      if (ceremonySoundIcon) ceremonySoundIcon.textContent = isCeremonySoundEnabled ? '🔊' : '🔇';
+      if (ceremonySoundText) ceremonySoundText.textContent = isCeremonySoundEnabled ? 'SFX: Aktif' : 'SFX: Bisu';
+      getCeremonyAudioCtx();
+    });
+  }
+
+  if (btnCeremonyFullscreen) {
+    btnCeremonyFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => { });
+      } else {
+        document.exitFullscreen().catch(() => { });
+      }
+    });
+  }
+
+  // Keyboard Escape listener to close ceremony
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && ceremonyModal && !ceremonyModal.classList.contains('hidden')) {
+      closeCeremonyModal();
+    }
+  });
 
   // Initial Check
   checkAdminAccess();

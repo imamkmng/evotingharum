@@ -190,3 +190,88 @@ body.stage-mode footer {
   }
 }
 
+/* ========================================================================== */
+/* Dramatic Reveal Ceremony Animations                                        */
+/* ========================================================================== */
+@keyframes countdownPop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  70% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+
+.animate-countdown-pop {
+  animation: countdownPop 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ceremonyFlash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.animate-ceremony-flash {
+  animation: ceremonyFlash 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes winnerGlow {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.4), 0 0 60px rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(245, 158, 11, 0.8), 0 0 90px rgba(245, 158, 11, 0.4);
+    border-color: #fde047;
+  }
+}
+
+.animate-winner-glow {
+  animation: winnerGlow 2s infinite ease-in-out;
+}
+
+@keyframes crownBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.12) rotate(4deg);
+  }
+}
+
+.animate-crown-bounce {
+  animation: crownBounce 2.2s infinite ease-in-out;
+}
+
+@keyframes barShine {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-bar-shine {
+  background-size: 200% 100%;
+  animation: barShine 3s infinite linear;
+}
+
