@@ -1,8 +1,8 @@
 import Papa from 'papaparse';
-import { 
-  getSupabaseConfig, 
-  saveSupabaseConfig, 
-  clearSupabaseConfig, 
+import {
+  getSupabaseConfig,
+  saveSupabaseConfig,
+  clearSupabaseConfig,
   isSupabaseConnected,
   fetchRealCountStats,
   adminGetAllVoters,
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formAdminLogin.addEventListener('submit', (e) => {
       e.preventDefault();
       const pass = adminPasswordInput ? adminPasswordInput.value.trim() : '';
-      if (pass === 'admin123' || pass === 'admin') {
+      if (pass === 'harumjayajayajaya' || pass === 'harumjayajayajaya') {
         sessionStorage.setItem('evote_admin_logged', 'true');
         if (authErrorMsg) authErrorMsg.classList.add('hidden');
         if (authGate) authGate.classList.add('hidden');
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tabs.forEach(tabKey => {
       const btn = document.getElementById(`tab-btn-${tabKey}`);
       const content = document.getElementById(`tab-content-${tabKey}`);
-      
+
       if (btn && content) {
         if (tabKey === activeKey) {
           btn.className = 'admin-tab-btn active px-3.5 py-2 rounded-xl bg-[#007979] text-white flex items-center space-x-2 transition-all flex-shrink-0 font-heading font-bold shadow-xs cursor-pointer';
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateElectionStatusUI(isVotingActive) {
     currentElectionLocked = !isVotingActive;
-    
+
     // 1. Update Navbar Status Pill
     const navPill = document.getElementById('admin-status-pill');
     const navDot = document.getElementById('admin-status-dot');
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 font-heading inline-flex items-center gap-1.5';
         badge.innerHTML = '<svg class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>🔴 DITUTUP (Terkunci)</span>';
         desc.textContent = 'Bilik suara dinonaktifkan. Pemilih tidak dapat lagi login atau voting. Layar Real Count menampilkan tanda gembok dan Hasil Akhir Resmi Terkunci.';
-        
+
         btn.className = 'px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all flex items-center space-x-2 cursor-pointer font-heading';
         btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg><span>Buka Kembali Pemilihan</span>';
       } else {
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 font-heading inline-flex items-center gap-1';
         badge.innerHTML = '<span>🟢 Sedang Berlangsung (Buka)</span>';
         desc.textContent = 'Bilik suara aktif menerima hak suara siswa dan guru. Layar Real Count menampilkan data secara langsung.';
-        
+
         btn.className = 'px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-all flex items-center space-x-2 cursor-pointer font-heading';
         btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span>Tutup & Kunci Pemilihan</span>';
       }
@@ -183,12 +183,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const willLock = !currentElectionLocked;
       const confirmMsg = willLock
         ? '⚠️ PERINGATAN: Apakah Anda yakin ingin MENUTUP & MENGUNCI pemilihan?\n\n' +
-          '• Akses bilik suara siswa & guru akan segera dinonaktifkan.\n' +
-          '• Halaman Real Count akan menampilkan tanda GEMBOK dan status Pemilihan Telah Ditutup.\n' +
-          '• Hasil perolehan suara saat ini akan ditetapkan sebagai Hasil Akhir Resmi.'
+        '• Akses bilik suara siswa & guru akan segera dinonaktifkan.\n' +
+        '• Halaman Real Count akan menampilkan tanda GEMBOK dan status Pemilihan Telah Ditutup.\n' +
+        '• Hasil perolehan suara saat ini akan ditetapkan sebagai Hasil Akhir Resmi.'
         : 'Konfirmasi: Apakah Anda ingin MEMBUKA KEMBALI pemungutan suara?\n\n' +
-          '• Siswa dan guru akan dapat kembali mengakses bilik suara.\n' +
-          '• Real Count akan kembali berstatus LIVE.';
+        '• Siswa dan guru akan dapat kembali mengakses bilik suara.\n' +
+        '• Real Count akan kembali berstatus LIVE.';
 
       if (!confirm(confirmMsg)) return;
 
@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         await saveElectionSettings({ is_voting_active: !willLock });
-        alert(willLock 
-          ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI! Layar Real Count kini menampilkan tanda gembok dan status hasil akhir terkunci.' 
+        alert(willLock
+          ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI! Layar Real Count kini menampilkan tanda gembok dan status hasil akhir terkunci.'
           : '🔓 Pemilihan berhasil DIBUKA KEMBALI! Siswa dan guru dapat kembali mengakses bilik suara.');
       } catch (err) {
         alert('Gagal mengubah status pemilihan: ' + err.message);
@@ -280,9 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="space-y-3">
               ${cList.length === 0 ? '<p class="text-xs text-slate-400">Belum ada kandidat terdaftar.</p>' : ''}
               ${cList.map(c => {
-                const count = c.vote_count || 0;
-                const pct = catTotal > 0 ? ((count / catTotal) * 100).toFixed(1) : 0;
-                return `
+          const count = c.vote_count || 0;
+          const pct = catTotal > 0 ? ((count / catTotal) * 100).toFixed(1) : 0;
+          return `
                   <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <div class="flex items-center justify-between text-xs mb-2">
                       <div class="flex items-center space-x-2">
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                   </div>
                 `;
-              }).join('')}
+        }).join('')}
             </div>
           </div>
         `;
@@ -360,12 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const summary = stats.summary || {};
 
       const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'medium' }) + ' WIB';
-      
+
       let csv = 'REKAPITULASI HASIL PERHITUNGAN SUARA E-VOTING\n';
       csv += 'SEKOLAH ISLAM TERPADU HARAPAN UMAT KARAWANG\n';
       csv += `Waktu Unduh: ${nowStr}\n`;
       csv += `Total DPT: ${summary.totalVoters || 0} Pemilih | Total Suara Masuk: ${summary.votedCount || 0} Suara (${summary.turnoutPercent || 0}%) | Belum Memilih: ${summary.unvotedCount || 0} Suara\n\n`;
-      
+
       csv += 'Kategori Pemilihan,Nomor Urut,Nama Calon / Pasangan,Kelas / Jabatan,Perolehan Suara,Persentase Suara,Status / Keterangan\n';
 
       const categories = [
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cList = candidates
           .filter(c => c.position === cat.key)
           .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0));
-        
+
         const catTotal = cList.reduce((acc, c) => acc + (c.vote_count || 0), 0);
         const maxVotes = cList.length > 0 ? (cList[0].vote_count || 0) : 0;
 
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const safeName = `"${(c.name || '').replace(/"/g, '""')}"`;
             const safeClass = `"${(c.class_grade || '-').replace(/"/g, '""')}"`;
             const safeCat = `"${cat.title}"`;
-            
+
             csv += `${safeCat},${num},${safeName},${safeClass},${count},${pct},${status}\n`;
           });
         }
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Download CSV Template
     btnDownloadTemplate.addEventListener('click', () => {
-      const csvContent = "data:text/csv;charset=utf-8," 
+      const csvContent = "data:text/csv;charset=utf-8,"
         + "id_number,name,role\n"
         + "0081234501,Aditya Pratama,siswa\n"
         + "0081234502,Bunga Citra Lestari,siswa\n"
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: function(results) {
+        complete: function (results) {
           const rawRows = results.data;
           parsedCsvData = rawRows.map(row => {
             const id_number = (row.id_number || row.ID || row.NISN || row.NIP || row.id || '').toString().trim();
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
           previewText.textContent = `File: "${file.name}" — ${parsedCsvData.length} baris data pemilih valid ditemukan.`;
           previewStatus.classList.remove('hidden');
         },
-        error: function(err) {
+        error: function (err) {
           alert('Gagal membaca file CSV: ' + err.message);
         }
       });
@@ -604,11 +604,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="p-3 pl-4 font-mono font-bold text-slate-900">${v.id_number}</td>
           <td class="p-3 font-semibold text-slate-800">${v.name}</td>
           <td class="p-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-heading ${
-              isGuru 
-                ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                : 'bg-teal-50 text-[#007979] border border-teal-200'
-            }">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider font-heading ${isGuru
+          ? 'bg-amber-50 text-amber-800 border border-amber-200'
+          : 'bg-teal-50 text-[#007979] border border-teal-200'
+        }">
               ${v.role}
             </span>
           </td>
@@ -720,9 +719,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Read and compress image with Canvas
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = function (event) {
         const img = new Image();
-        img.onload = function() {
+        img.onload = function () {
           const maxDimension = 900;
           let width = img.width;
           let height = img.height;
@@ -783,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const candidate_number = parseInt(document.getElementById('cand-number').value, 10);
       const class_grade = document.getElementById('cand-class').value.trim();
       const name = document.getElementById('cand-name').value.trim();
-      
+
       let image_url = candImageData.value.trim() || candImageUrl.value.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80';
       const vision = document.getElementById('cand-vision').value.trim();
       const mission = document.getElementById('cand-mission').value.trim();
@@ -972,7 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const curSettings = await fetchElectionSettings();
       const activeCats = curSettings.active_categories || ['osis', 'ambalan_putra', 'ambalan_putri'];
-      
+
       chkOsis.checked = activeCats.includes('osis');
       chkPa.checked = activeCats.includes('ambalan_putra');
       chkPi.checked = activeCats.includes('ambalan_putri');

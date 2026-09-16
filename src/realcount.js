@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (customBg && bgImgEl) {
       bgImgEl.src = customBg;
     }
-  } catch (e) {}
+  } catch (e) { }
 
   if (window.lucide) {
     window.lucide.createIcons();
@@ -26,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRcLogout = document.getElementById('btn-rc-logout');
 
   let intervalId = null;
-  let unsubscribeRealtime = () => {};
+  let unsubscribeRealtime = () => { };
 
   function checkAdminAccess() {
     let hasUrlBypass = false;
     try {
       const params = new URLSearchParams(window.location.search);
       hasUrlBypass = params.get('admin') === '1' || params.get('locked') === 'true' || params.get('preview') === '1' || params.get('kunci') === '1';
-    } catch (e) {}
+    } catch (e) { }
 
     const isLogged = hasUrlBypass || sessionStorage.getItem('evote_admin_logged') === 'true' || localStorage.getItem('evote_admin_logged') === 'true';
     if (isLogged) {
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formAuth.addEventListener('submit', (e) => {
       e.preventDefault();
       const pass = rcPasswordInput.value.trim();
-      if (pass === 'admin123' || pass === 'admin') {
+      if (pass === 'harumjayajayajaya' || pass === 'harumjayajayajaya') {
         sessionStorage.setItem('evote_admin_logged', 'true');
         localStorage.setItem('evote_admin_logged', 'true');
         if (rcAuthError) rcAuthError.classList.add('hidden');
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function applyStageMode(active) {
     isStageMode = active;
     localStorage.setItem('rc_stage_mode', active ? 'true' : 'false');
-    
+
     if (active) {
       document.body.classList.add('stage-mode');
       if (stageModeIcon) stageModeIcon.setAttribute('data-lucide', 'sun');
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       Object.keys(chartInstances).forEach(k => {
         if (chartInstances[k]) {
-          try { chartInstances[k].resize(); } catch (e) {}
+          try { chartInstances[k].resize(); } catch (e) { }
         }
       });
     }, 100);
@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Destroy all existing charts
     Object.keys(chartInstances).forEach(k => {
       if (chartInstances[k]) {
-        try { chartInstances[k].destroy(); } catch (e) {}
+        try { chartInstances[k].destroy(); } catch (e) { }
         chartInstances[k] = null;
       }
     });
@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bodyFont: { family: "'Inter', sans-serif" },
             padding: 10,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const val = context.raw || 0;
                 const pct = totalVotes > 0 ? ((val / totalVotes) * 100).toFixed(1) : 0;
                 return ` ${val.toLocaleString('id-ID')} suara (${pct}%)`;
@@ -784,15 +784,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const candColor = palette[idx % palette.length] || '#007979';
 
         const ribbonText = !isVotingActive ? '🔒 TERPILIH' : '👑 UNGGUL';
-        const ribbonBg = !isVotingActive 
-          ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-md' 
+        const ribbonBg = !isVotingActive
+          ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 shadow-md'
           : 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950';
 
         return `
-          <div class="white-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
-            isLeader 
-              ? (!isVotingActive ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg' : 'border-teal-500 ring-2 ring-teal-500/30 shadow-md') 
-              : 'border-slate-200 shadow-xs'
+          <div class="white-card rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${isLeader
+            ? (!isVotingActive ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg' : 'border-teal-500 ring-2 ring-teal-500/30 shadow-md')
+            : 'border-slate-200 shadow-xs'
           }">
             
             <!-- Leader / Winner Ribbon -->
@@ -931,11 +930,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const confirmMsg = willLock
       ? '⚠️ PERINGATAN: Apakah Anda yakin ingin MENUTUP & MENGUNCI pemilihan sekarang?\n\n' +
-        '• Layar Real Count akan menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.\n' +
-        '• Akses bilik suara siswa dan guru akan dinonaktifkan.'
+      '• Layar Real Count akan menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.\n' +
+      '• Akses bilik suara siswa dan guru akan dinonaktifkan.'
       : 'Konfirmasi: Apakah Anda ingin MEMBUKA KEMBALI pemungutan suara?\n\n' +
-        '• Bilik suara akan kembali aktif menerima suara.\n' +
-        '• Layar Real Count akan kembali berstatus LIVE.';
+      '• Bilik suara akan kembali aktif menerima suara.\n' +
+      '• Layar Real Count akan kembali berstatus LIVE.';
 
     if (!confirm(confirmMsg)) return;
 
@@ -992,8 +991,8 @@ document.addEventListener('DOMContentLoaded', () => {
       await saveElectionSettings({ is_voting_active: !willLock });
       await updateDashboard();
 
-      alert(willLock 
-        ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI!\n\nLayar Real Count kini menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.' 
+      alert(willLock
+        ? '🔒 Pemilihan berhasil DITUTUP dan DIKUNCI!\n\nLayar Real Count kini menampilkan tanda GEMBOK dan Hasil Akhir Resmi Terkunci.'
         : '🔓 Pemilihan berhasil DIBUKA KEMBALI!\n\nBilik suara kini aktif menerima pemilih.');
     } catch (err) {
       alert('Gagal mengubah status pemilihan: ' + err.message);
